@@ -1,0 +1,2 @@
+# movementsDetection_just-dance
+基于视频识别以及人体躯干特征点检测的人体动作匹配系统，

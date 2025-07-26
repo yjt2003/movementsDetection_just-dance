@@ -1,0 +1,2236 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DanceVibe - 舞动青春</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="styles.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* 马卡龙色彩系统 */
+            --macaron-pink: #FFB5BA;
+            --macaron-mint: #B5E5CF;
+            --macaron-lemon: #FFF4B5;
+            --macaron-lavender: #D4B5FF;
+            --macaron-peach: #FFD4B5;
+            --macaron-sky: #B5D4FF;
+
+            /* 中性色 */
+            --white: #FFFFFF;
+            --light-gray: #F8F9FA;
+            --gray: #E9ECEF;
+            --dark-gray: #6C757D;
+            --black: #212529;
+
+            /* 渐变 */
+            --gradient-main: linear-gradient(135deg, var(--macaron-pink) 0%, var(--macaron-mint) 100%);
+            --gradient-score: linear-gradient(135deg, var(--macaron-lemon) 0%, var(--macaron-peach) 100%);
+            --gradient-perfect: linear-gradient(135deg, var(--macaron-lavender) 0%, var(--macaron-sky) 100%);
+
+            /* 阴影 */
+            --shadow-soft: 0 8px 32px rgba(255, 181, 186, 0.15);
+            --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* 主容器 */
+        .app-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 顶部导航 */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow-soft);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: var(--gradient-main);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .connection-status.connected {
+            background: var(--macaron-mint);
+            color: var(--black);
+        }
+
+        .connection-status.disconnected {
+            background: #ffcccb;
+            color: #d63384;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .score-display {
+            background: var(--gradient-score);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            color: var(--black);
+            box-shadow: var(--shadow-card);
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--gradient-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        /* 主内容区域 */
+        .main-content {
+            flex: 1;
+            display: flex;
+            gap: 1.5rem;
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* 视频容器 */
+        .video-section {
+            flex: 1;
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .video-container {
+            flex: 1;
+            background: white;
+            border-radius: 24px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-card);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .video-container:hover {
+            box-shadow: var(--shadow-hover);
+            transform: translateY(-4px);
+        }
+
+        .video-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .video-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--black);
+        }
+
+        .video-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .video-badge.connected {
+            background: var(--macaron-mint);
+            color: var(--black);
+        }
+
+        .video-badge.disconnected {
+            background: #ffcccb;
+            color: #d63384;
+        }
+
+        .video-badge.syncing {
+            background: var(--macaron-lemon);
+            color: var(--black);
+        }
+
+        .video-frame {
+            width: 100%;
+            height: 500px;
+            background: var(--light-gray);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .video-placeholder {
+            color: var(--dark-gray);
+            font-size: 1.1rem;
+            text-align: center;
+        }
+
+        .video-placeholder i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .video-display {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 12px;
+        }
+
+        /* 摄像头画面镜像显示 */
+        #userVideo {
+            transform: scaleX(-1);
+        }
+
+        /* 同步状态指示器 */
+        .sync-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 0.3rem 0.6rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            z-index: 10;
+        }
+
+        .sync-indicator.waiting {
+            background: rgba(255, 193, 7, 0.8);
+            color: black;
+        }
+
+        .sync-indicator.synced {
+            background: rgba(40, 167, 69, 0.8);
+        }
+
+        /* 优化后的障碍框显示 */
+        .obstacle-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .obstacle-box {
+            position: absolute;
+            border: 3px solid;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+            flex-direction: column;
+            backdrop-filter: blur(5px);
+        }
+
+        .obstacle-box.reward {
+            border-color: #4CAF50;
+            background: linear-gradient(45deg, rgba(76, 175, 80, 0.4), rgba(76, 175, 80, 0.7));
+            animation: pulseReward 2s infinite;
+        }
+
+        .obstacle-box.penalty {
+            border-color: #F44336;
+            background: linear-gradient(45deg, rgba(244, 67, 54, 0.4), rgba(244, 67, 54, 0.7));
+            animation: shakePenalty 1s infinite;
+        }
+
+        .obstacle-box.blinking {
+            animation: blink 0.5s infinite;
+        }
+
+        .obstacle-box .obstacle-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .obstacle-box .obstacle-label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            opacity: 0.9;
+        }
+
+        .obstacle-progress {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 0 0 8px 8px;
+            transition: width 0.3s ease;
+        }
+
+        @keyframes pulseReward {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(76, 175, 80, 0.3); }
+            50% { transform: scale(1.05); box-shadow: 0 0 30px rgba(76, 175, 80, 0.6); }
+        }
+
+        @keyframes shakePenalty {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-2px); }
+            75% { transform: translateX(2px); }
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* 分数变化动画 */
+        .score-change {
+            position: absolute;
+            font-size: 2rem;
+            font-weight: 700;
+            pointer-events: none;
+            z-index: 15;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .score-change.positive {
+            color: #4CAF50;
+            animation: scoreUp 2s ease-out forwards;
+        }
+
+        .score-change.negative {
+            color: #F44336;
+            animation: scoreDown 2s ease-out forwards;
+        }
+
+        .score-change.miss {
+            color: #9E9E9E;
+            animation: scoreMiss 1.5s ease-out forwards;
+        }
+
+        @keyframes scoreUp {
+            0% {
+                opacity: 0;
+                transform: translateY(0) scale(0.5);
+            }
+            20% {
+                opacity: 1;
+                transform: translateY(-20px) scale(1.2);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-60px) scale(1);
+            }
+        }
+
+        @keyframes scoreDown {
+            0% {
+                opacity: 0;
+                transform: translateY(0) scale(0.5);
+            }
+            20% {
+                opacity: 1;
+                transform: translateY(20px) scale(1.2);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(60px) scale(1);
+            }
+        }
+
+        @keyframes scoreMiss {
+            0% {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.1);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(1);
+            }
+        }
+
+        /* 参考视频控制 */
+        .reference-controls {
+            display: flex;
+            gap: 1rem;
+            margin: 0.5rem 0 1rem 0;
+            justify-content: flex-start;
+            flex-wrap: wrap;
+        }
+
+        .ref-btn {
+            border: none;
+            border-radius: 12px;
+            padding: 0.6rem 1.2rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            background: var(--gradient-main);
+            color: white;
+            box-shadow: var(--shadow-card);
+            cursor: pointer;
+            transition: all 0.2s;
+            outline: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .ref-btn.open { background: var(--macaron-sky); color: var(--black); }
+        .ref-btn.start { background: var(--macaron-mint); color: var(--black); }
+        .ref-btn.stop { background: var(--macaron-pink); color: var(--black); }
+        .ref-btn.toggle { background: var(--macaron-lemon); color: var(--black); }
+        .ref-btn:disabled { background: var(--gray); color: var(--dark-gray); cursor: not-allowed; }
+        .ref-btn:hover:not(:disabled) { transform: translateY(-2px); }
+
+        /* 侧边控制面板 */
+        .control-panel {
+            width: 320px;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .control-card {
+            background: white;
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-card);
+            transition: all 0.3s ease;
+        }
+
+        .control-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--black);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* 舞蹈选择 */
+        .dance-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+        }
+
+        .dance-option {
+            background: var(--light-gray);
+            border: 2px solid transparent;
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dance-option:hover {
+            transform: scale(1.05);
+        }
+
+        .dance-option.active {
+            background: var(--gradient-main);
+            color: white;
+            border-color: var(--macaron-pink);
+        }
+
+        .dance-option .name {
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        /* 游戏控制 */
+        .game-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .control-button {
+            background: var(--gradient-main);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            padding: 1rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .control-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .control-button:disabled {
+            background: var(--gray);
+            color: var(--dark-gray);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .control-button.stop {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ffa8a8 100%);
+        }
+
+        .control-button.pause {
+            background: linear-gradient(135deg, #ffd93d 0%, #ffe066 100%);
+            color: var(--black);
+        }
+
+        /* 实时得分 */
+        .score-section {
+            text-align: center;
+        }
+
+        .current-score {
+            font-size: 3rem;
+            font-weight: 700;
+            background: var(--gradient-score);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .score-label {
+            color: var(--dark-gray);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .score-bars {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .score-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .score-name {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--dark-gray);
+        }
+
+        .score-value {
+            font-weight: 600;
+            color: var(--black);
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 6px;
+            background: var(--gray);
+            border-radius: 3px;
+            margin: 0 1rem;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--gradient-main);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        /* 障碍得分显示 */
+        .obstacle-score-display {
+            background: linear-gradient(135deg, var(--macaron-lavender), var(--macaron-sky));
+            color: white;
+            border-radius: 18px;
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            box-shadow: var(--shadow-card);
+        }
+
+        .obstacle-score-display i {
+            font-size: 1.2rem;
+        }
+
+        /* 状态指示 */
+        .status-indicators {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 1rem;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--gray);
+            transition: all 0.3s ease;
+        }
+
+        .status-dot.active {
+            background: var(--macaron-mint);
+            transform: scale(1.2);
+        }
+
+        .status-dot.error {
+            background: #ff6b6b;
+        }
+
+        /* 性能统计 */
+        .performance-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: var(--dark-gray);
+            margin-top: 1rem;
+        }
+
+        .total-score-macaron {
+            background: var(--gradient-main);
+            color: var(--black);
+            border-radius: 18px;
+            padding: 0.5rem 1.2rem;
+            box-shadow: var(--shadow-card);
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .total-score-macaron i {
+            color: var(--macaron-lavender);
+            font-size: 1.5rem;
+        }
+
+        /* 倒计时 */
+        .countdown {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 50%;
+            width: 200px;
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            font-weight: 700;
+            color: var(--macaron-pink);
+            box-shadow: var(--shadow-soft);
+            z-index: 1000;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.1); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+
+        /* 结果弹窗 */
+        .result-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .result-content {
+            background: white;
+            border-radius: 24px;
+            padding: 3rem;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: var(--shadow-soft);
+            animation: slideUp 0.5s ease;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-title {
+            font-size: 2rem;
+            font-weight: 700;
+            background: var(--gradient-main);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+
+        .result-score {
+            font-size: 4rem;
+            font-weight: 700;
+            color: var(--macaron-pink);
+            margin: 1rem 0;
+        }
+
+        .result-rating {
+            font-size: 1.5rem;
+            color: var(--dark-gray);
+            margin-bottom: 2rem;
+        }
+
+        .result-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        /* 特效动画 */
+        .perfect-effect {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--macaron-lavender);
+            pointer-events: none;
+            animation: perfectPop 1s ease-out forwards;
+        }
+
+        @keyframes perfectPop {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0);
+            }
+            50% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1.2);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(1) translateY(-50px);
+            }
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 1200px) {
+            .main-content {
+                flex-direction: column;
+                padding: 1rem;
+            }
+
+            .control-panel {
+                width: 100%;
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+
+            .control-card {
+                flex: 1;
+                min-width: 250px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .video-section {
+                flex-direction: column;
+            }
+
+            .video-frame {
+                height: 280px;
+            }
+
+            .header {
+                padding: 1rem;
+            }
+
+            .logo {
+                font-size: 1.5rem;
+            }
+
+            .control-panel {
+                flex-direction: column;
+            }
+
+            .reference-controls {
+                justify-content: center;
+            }
+
+            .ref-btn {
+                font-size: 0.8rem;
+                padding: 0.5rem 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- 顶部导航 -->
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-music"></i> DanceVibe
+            </div>
+            <div class="user-info">
+                <div class="connection-status" id="connectionStatus">
+                    <i class="fas fa-wifi-slash"></i>
+                    <span>Connecting...</span>
+                </div>
+                <div class="score-display">
+                    <i class="fas fa-trophy"></i> <span id="averageScore">0</span>
+                </div>
+                <div class="avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+            </div>
+        </header>
+
+        <!-- 主要内容 -->
+        <div class="main-content">
+            <!-- 视频区域 -->
+            <div class="video-section">
+                <!-- 参考视频 -->
+                <div class="video-container">
+                    <div class="video-header">
+                        <h3 class="video-title" style="display:inline-block;vertical-align:middle;">
+                            <i class="fas fa-play-circle"></i> Reference
+                        </h3>
+                        <span class="video-badge connected" id="selectedDanceName" style="margin-left:auto; margin-right: 8px;">Level Unselected</span>
+                        <!-- 声音开关按钮 -->
+                        <button id="referenceSoundBtn" style="background:none;border:none;outline:none;cursor:pointer;margin-right:8px;font-size:1.2rem;" title="切换声音">
+                            <i id="referenceSoundIcon" class="fas fa-volume-mute"></i>
+                        </button>
+                    </div>
+
+                    <div class="video-frame">
+                        <div class="video-placeholder" id="referencePlaceholder">
+                            <i class="fas fa-video"></i>
+                            <p>Click 'Open' to select a reference dance video</p>
+                        </div>
+
+                        <!-- 同步状态指示器 -->
+                        <div class="sync-indicator waiting" id="referenceSyncIndicator" style="display: none;">
+                            <i class="fas fa-clock"></i> Waiting for sync...
+                        </div>
+
+                        <!-- 本地参考视频播放 -->
+                        <video id="referenceVideo" class="video-display" style="display:none;" muted></video>
+
+                        <!-- 姿态检测结果 -->
+                        <img id="referenceFrame" class="video-display" style="display:none;" alt="参考视频姿态">
+                    </div>
+
+                    <div class="status-indicators">
+                        <div class="status-dot" id="wsStatusDot"></div>
+                        <div class="status-dot" id="referenceReadyDot"></div>
+                        <div class="status-dot" id="referenceDetectedDot"></div>
+                        <div class="status-dot" id="beatTimesLoadedDot"></div>
+                    </div>
+
+                    <!-- 参考视频控制按钮 -->
+                    <div class="reference-controls">
+                        <input type="file" accept="video/*" id="referenceInput" style="display:none">
+                        <button class="ref-btn open" id="openReferenceBtn">
+                            <i class="fas fa-folder-open"></i> Open
+                        </button>
+                        <button class="ref-btn start" id="startReferenceBtn" disabled>
+                            <i class="fas fa-play"></i> Play
+                        </button>
+                        <button class="ref-btn stop" id="stopReferenceBtn" disabled>
+                            <i class="fas fa-stop"></i> Pause
+                        </button>
+                        <button class="ref-btn toggle" id="toggleReferenceBtn" disabled>
+                            <i class="fas fa-eye"></i> <span>Hide</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 用户摄像头 -->
+                <div class="video-container">
+                    <div class="video-header">
+                        <h3 class="video-title">
+                            <i class="fas fa-camera"></i> WebCam
+                        </h3>
+                        <span class="video-badge" id="cameraStatus">Not Connected</span>
+                    </div>
+
+                    <div class="video-frame" style="position: relative;">
+                        <div class="video-placeholder" id="cameraPlaceholder">
+                            <i class="fas fa-camera-slash"></i>
+                            <p>Starting camera...</p>
+                            <button id="retryCamera" class="control-button" style="margin-top: 1rem; padding: 0.5rem 1rem; font-size: 0.9rem; display: none;">
+                                <i class="fas fa-redo"></i> Retry
+                            </button>
+                        </div>
+
+                        <!-- 同步状态指示器 -->
+                        <div class="sync-indicator waiting" id="webcamSyncIndicator" style="display: none;">
+                            <i class="fas fa-sync-alt"></i> Syncing...
+                        </div>
+
+                        <!-- 用户摄像头视频流 -->
+                        <video id="userVideo" class="video-display" autoplay muted playsinline style="display:none;"></video>
+
+                        <!-- 处理后的姿态检测结果 -->
+                        <img id="processedFrame" class="video-display" style="position: absolute; top: 0; left: 0; z-index: 2; display: none;" alt="处理后的视频">
+
+                        <!-- 障碍框容器 -->
+                        <div id="obstacleContainer" class="obstacle-container"></div>
+
+                        <!-- 分数变化效果容器 -->
+                        <div id="scoreChangeContainer" class="score-change-container" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10;"></div>
+
+                        <!-- 完美动作特效 -->
+                        <div id="perfectEffect" class="perfect-effect" style="display: none;">
+                            ✨ PERFECT! ✨
+                        </div>
+                    </div>
+
+                    <!-- 状态+总当前分数显示 -->
+                    <div class="stats-container" style="padding: 15px 0; text-align: center;">
+                        <div class="total-score-macaron" id="totalScoreMacaron">
+                            <i class="fas fa-star"></i>
+                            <span id="totalScoreValue" style="font-size: 2rem; font-weight: 700; margin-left: 8px;">0</span>
+                            <span style="margin-left: 8px; font-size: 1rem; color: var(--dark-gray);">Current Score</span>
+                        </div>
+                        <!-- 障碍得分显示 -->
+                        <div class="obstacle-score-display" id="obstacleScoreDisplay">
+                            <i class="fas fa-bullseye"></i>
+                            <span>Obstacle Scoring </span>
+                            <span id="obstacleScoreValue">0</span>
+                        </div>
+                        <div class="performance-stats">
+                            <span>FPS: <span id="currentFPS">0.0</span></span>
+                            <span>Delay: <span id="latency">0</span>ms</span>
+                            <span>persons_detected <span id="personsDetected">0</span></span>
+                            <span>Beats: <span id="beatCount">0</span></span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- 控制面板 -->
+            <div class="control-panel">
+                <!-- 舞蹈选择 -->
+                <div class="control-card">
+                    <h3 class="card-title">
+                        <i class="fas fa-list"></i> Dance Level
+                    </h3>
+                    <div class="dance-selector" id="danceSelector">
+                        <!-- 舞蹈选项将由JS动态生成 -->
+                    </div>
+                </div>
+
+                <!-- 游戏控制 -->
+                <div class="control-card">
+                    <h3 class="card-title">
+                        <i class="fas fa-gamepad"></i> Game Control
+                    </h3>
+                    <div class="game-controls">
+                        <button class="control-button" id="startGameBtn">
+                            <i class="fas fa-play"></i> start
+                        </button>
+                        <button class="control-button pause" id="pauseGameBtn" style="display: none;">
+                            <i class="fas fa-pause"></i> 暂停
+                        </button>
+                        <button class="control-button" id="resumeGameBtn" style="display: none;">
+                            <i class="fas fa-play"></i> 继续
+                        </button>
+                        <button class="control-button stop" id="stopGameBtn" style="display: none;">
+                            <i class="fas fa-stop"></i> 结束
+                        </button>
+                        <button class="control-button" id="stopDanceBtn" style="margin-top: 10px;">
+                            <i class="fas fa-pause"></i> pause
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 实时得分 -->
+                <div class="control-card">
+                    <h3 class="card-title">
+                        <i class="fas fa-chart-line"></i> Scoring System
+                    </h3>
+                    <div class="score-section">
+                        <div class="current-score" id="currentScore">0</div>
+                        <div class="score-label">Realtime Score</div>
+                        <div class="score-bars">
+                            <div class="score-bar">
+                                <span class="score-name">POSE</span>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="poseScoreBar"></div>
+                                </div>
+                                <span class="score-value" id="poseScore">0%</span>
+                            </div>
+                            <div class="score-bar">
+                                <span class="score-name">BEAT</span>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="rhythmScoreBar"></div>
+                                </div>
+                                <span class="score-value" id="rhythmScore">0%</span>
+                            </div>
+                            <div class="score-bar">
+                                <span class="score-name">GESTURE</span>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="handScoreBar"></div>
+                                </div>
+                                <span class="score-value" id="handScore">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 倒计时 -->
+        <div id="countdown" class="countdown" style="display: none;"></div>
+
+        <!-- 结果弹窗 -->
+        <div id="resultModal" class="result-modal" style="display: none;">
+            <div class="result-content">
+                <h2 class="result-title">🎉 Completed!</h2>
+                <div class="result-score" id="finalScore">0</div>
+                <div class="result-rating" id="finalRating">👍 Good</div>
+                <div class="result-actions">
+                    <button class="control-button" id="playAgainBtn">
+                        <i class="fas fa-redo"></i> Restart
+                    </button>
+                    <button class="control-button" id="closeResultBtn">
+                        <i class="fas fa-home"></i> Return
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 应用状态
+        let appState = {
+            // 连接状态
+            wsConnected: false,
+            cameraReady: false,
+            ws: null,
+
+            // 游戏状态
+            gameStarted: false,
+            gamePaused: false,
+            referenceDetected: false,
+            referenceReady: false,
+            beatTimesLoaded: false,
+            beatCount: 0,
+
+            // 同步状态
+            syncEnabled: false,
+            webcamFirstFrame: false,
+            referenceSynced: false,
+            syncStartTime: null,
+            gameStartTime: null,
+
+            // 得分数据
+            currentScores: {
+                pose_score: 0,
+                rhythm_score: 0,
+                hand_score: 0,
+                total_score: 0,
+                obstacle_score: 0
+            },
+            averageScore: 0,
+
+            // 舞蹈选项
+            danceOptions: [
+                { id: 1, name: 'Easy' },
+                { id: 2, name: 'Medium' },
+                { id: 3, name: 'Hard' },
+                { id: 4, name: 'Expert' }
+            ],
+            selectedDance: { id: 1, name: 'Easy' },
+
+            // 参考视频
+            referenceVideoFile: null,
+            referenceVideoUrl: '',
+            referencePlaying: false,
+            referenceVisible: true,
+            referenceFrameTimer: null,
+            referenceEndTimer: null,
+
+            // 性能统计
+            currentFPS: 0,
+            latency: 0,
+            personsDetected: 0,
+            showReferenceSkeleton: true
+        };
+
+        // 障碍物管理
+        let obstacles = {};
+        let totalScoreHistory = [];
+        let totalScoreTimer = null;
+
+        // DOM 元素
+        const elements = {
+            // 连接状态
+            connectionStatus: document.getElementById('connectionStatus'),
+            averageScore: document.getElementById('averageScore'),
+
+            // 视频相关
+            referenceInput: document.getElementById('referenceInput'),
+            openReferenceBtn: document.getElementById('openReferenceBtn'),
+            startReferenceBtn: document.getElementById('startReferenceBtn'),
+            stopReferenceBtn: document.getElementById('stopReferenceBtn'),
+            toggleReferenceBtn: document.getElementById('toggleReferenceBtn'),
+            referencePlaceholder: document.getElementById('referencePlaceholder'),
+            referenceVideo: document.getElementById('referenceVideo'),
+            referenceFrame: document.getElementById('referenceFrame'),
+
+            // 同步指示器
+            referenceSyncIndicator: document.getElementById('referenceSyncIndicator'),
+            webcamSyncIndicator: document.getElementById('webcamSyncIndicator'),
+
+            userVideo: document.getElementById('userVideo'),
+            cameraPlaceholder: document.getElementById('cameraPlaceholder'),
+            cameraStatus: document.getElementById('cameraStatus'),
+            retryCamera: document.getElementById('retryCamera'),
+            processedFrame: document.getElementById('processedFrame'),
+            tooCloseTip: null,
+
+            // 障碍相关
+            obstacleContainer: document.getElementById('obstacleContainer'),
+            scoreChangeContainer: document.getElementById('scoreChangeContainer'),
+            obstacleScoreDisplay: document.getElementById('obstacleScoreDisplay'),
+            obstacleScoreValue: document.getElementById('obstacleScoreValue'),
+
+            // 状态点
+            wsStatusDot: document.getElementById('wsStatusDot'),
+            referenceReadyDot: document.getElementById('referenceReadyDot'),
+            referenceDetectedDot: document.getElementById('referenceDetectedDot'),
+            beatTimesLoadedDot: document.getElementById('beatTimesLoadedDot'),
+
+            // 控制按钮
+            danceSelector: document.getElementById('danceSelector'),
+            selectedDanceName: document.getElementById('selectedDanceName'),
+            startGameBtn: document.getElementById('startGameBtn'),
+            pauseGameBtn: document.getElementById('pauseGameBtn'),
+            resumeGameBtn: document.getElementById('resumeGameBtn'),
+            stopGameBtn: document.getElementById('stopGameBtn'),
+            stopDanceBtn: document.getElementById('stopDanceBtn'),
+
+            // 分数显示
+            currentScore: document.getElementById('currentScore'),
+            poseScore: document.getElementById('poseScore'),
+            rhythmScore: document.getElementById('rhythmScore'),
+            handScore: document.getElementById('handScore'),
+            poseScoreBar: document.getElementById('poseScoreBar'),
+            rhythmScoreBar: document.getElementById('rhythmScoreBar'),
+            handScoreBar: document.getElementById('handScoreBar'),
+
+            // 性能统计
+            currentFPS: document.getElementById('currentFPS'),
+            latency: document.getElementById('latency'),
+            personsDetected: document.getElementById('personsDetected'),
+            beatCount: document.getElementById('beatCount'),
+
+            // 特效和弹窗
+            perfectEffect: document.getElementById('perfectEffect'),
+            countdown: document.getElementById('countdown'),
+            resultModal: document.getElementById('resultModal'),
+            finalScore: document.getElementById('finalScore'),
+            finalRating: document.getElementById('finalRating'),
+            playAgainBtn: document.getElementById('playAgainBtn'),
+            closeResultBtn: document.getElementById('closeResultBtn')
+        };
+
+        // 创建 too close 提示
+        function createTooCloseTip() {
+            if (!elements.tooCloseTip) {
+                const tip = document.createElement('div');
+                tip.id = 'tooCloseTip';
+                tip.textContent = 'Too Close!';
+                tip.style.position = 'absolute';
+                tip.style.top = '40%';
+                tip.style.left = '50%';
+                tip.style.transform = 'translate(-50%, -50%)';
+                tip.style.background = 'linear-gradient(135deg, #FFB5BA 0%, #B5E5CF 100%)';
+                tip.style.color = '#212529';
+                tip.style.fontWeight = 'bold';
+                tip.style.fontSize = '2rem';
+                tip.style.padding = '1.2rem 2.5rem';
+                tip.style.borderRadius = '2rem';
+                tip.style.boxShadow = '0 8px 32px rgba(255, 181, 186, 0.15)';
+                tip.style.zIndex = '100';
+                tip.style.display = 'none';
+                tip.style.textAlign = 'center';
+                tip.style.letterSpacing = '0.1em';
+                tip.style.userSelect = 'none';
+                tip.style.border = '3px solid #FFD4B5';
+                
+                const webcamContainer = elements.userVideo.closest('.video-container');
+                if (webcamContainer) {
+                    webcamContainer.appendChild(tip);
+                    elements.tooCloseTip = tip;
+                }
+            }
+        }
+
+        // 显示/隐藏 too close 提示
+        function showTooCloseTip(show) {
+            createTooCloseTip();
+            if (elements.tooCloseTip) {
+                elements.tooCloseTip.style.display = show ? 'block' : 'none';
+            }
+        }
+
+        // 同步管理函数
+        function initSync() {
+            appState.syncEnabled = true;
+            appState.webcamFirstFrame = false;
+            appState.referenceSynced = false;
+            appState.syncStartTime = null;
+            
+            // 显示同步指示器
+            elements.referenceSyncIndicator.style.display = 'block';
+            elements.webcamSyncIndicator.style.display = 'block';
+            
+            console.log('🔄 同步模式已启用');
+        }
+
+        function onWebcamFirstFrame() {
+            if (!appState.syncEnabled || appState.webcamFirstFrame) return;
+            
+            appState.webcamFirstFrame = true;
+            appState.syncStartTime = Date.now();
+            
+            // 更新同步指示器
+            elements.webcamSyncIndicator.className = 'sync-indicator synced';
+            elements.webcamSyncIndicator.innerHTML = '<i class="fas fa-check"></i> Synced';
+            
+            // 通知后端开始同步
+            sendWebSocketMessage({
+                event: 'sync_start',
+                timestamp: appState.syncStartTime
+            });
+            
+            // 启动参考视频播放
+            if (appState.referenceVideoFile && !appState.referencePlaying) {
+                setTimeout(() => {
+                    startReferenceVideoSync();
+                }, 100); // 小延迟确保同步
+            }
+            
+            console.log('✅ 摄像头首帧同步完成');
+        }
+
+        function startReferenceVideoSync() {
+            if (!appState.syncEnabled || appState.referenceSynced) return;
+            
+            appState.referenceSynced = true;
+            
+            // 更新同步指示器
+            elements.referenceSyncIndicator.className = 'sync-indicator synced';
+            elements.referenceSyncIndicator.innerHTML = '<i class="fas fa-check"></i> Synced';
+            
+            // 启动参考视频
+            if (elements.referenceVideo) {
+                elements.referenceVideo.currentTime = 0;
+                elements.referenceVideo.play();
+            }
+            
+            console.log('✅ 参考视频同步播放开始');
+        }
+
+        // 初始化应用
+        function initApp() {
+            console.log('🚀 应用初始化开始');
+            initDanceSelector();
+            initWebSocket();
+            initEventListeners();
+            console.log('✅ 应用初始化完成');
+        }
+
+        // 初始化舞蹈选择器
+        function initDanceSelector() {
+            elements.danceSelector.innerHTML = '';
+            appState.danceOptions.forEach(dance => {
+                const option = document.createElement('div');
+                option.className = 'dance-option';
+                option.dataset.id = dance.id;
+                if (dance.id === appState.selectedDance.id) {
+                    option.classList.add('active');
+                }
+                option.innerHTML = `<div class="name">${dance.name}</div>`;
+                option.addEventListener('click', () => selectDance(dance));
+                elements.danceSelector.appendChild(option);
+            });
+        }
+
+        // 选择舞蹈
+        function selectDance(dance) {
+            appState.selectedDance = dance;
+            elements.selectedDanceName.textContent = dance.name;
+            document.querySelectorAll('.dance-option').forEach(option => {
+                option.classList.remove('active');
+                if (option.dataset.id == dance.id) {
+                    option.classList.add('active');
+                }
+            });
+        }
+
+        // 初始化WebSocket连接
+        function initWebSocket() {
+            try {
+                const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+                const wsUrl = `${protocol}//${window.location.host}/ws/ws`;
+                console.log('🔗 WebSocket连接URL:', wsUrl);
+
+                appState.ws = new WebSocket(wsUrl);
+
+                appState.ws.onopen = () => {
+                    console.log('✅ WebSocket连接成功');
+                    appState.wsConnected = true;
+                    updateConnectionStatus();
+                };
+
+                appState.ws.onclose = () => {
+                    console.log('❌ WebSocket连接断开');
+                    appState.wsConnected = false;
+                    updateConnectionStatus();
+                    setTimeout(initWebSocket, 5000);
+                };
+
+                appState.ws.onerror = (error) => {
+                    console.error('❌ WebSocket错误:', error);
+                    appState.wsConnected = false;
+                    updateConnectionStatus();
+                };
+
+                appState.ws.onmessage = (event) => {
+                    try {
+                        const data = JSON.parse(event.data);
+                        handleWebSocketMessage(data);
+                    } catch (e) {
+                        console.error('WebSocket消息解析失败:', e);
+                    }
+                };
+            } catch (error) {
+                console.error('WebSocket初始化失败:', error);
+                setTimeout(initWebSocket, 5000);
+            }
+        }
+
+        // 处理WebSocket消息
+        function handleWebSocketMessage(data) {
+            const eventType = data.event || data.type;
+
+            switch (eventType) {
+                case 'frame_result':
+                    handleFrameResult(data);
+                    break;
+                case 'score_update':
+                    handleScoreUpdate(data);
+                    break;
+                case 'obstacle_spawn':
+                    handleObstacleSpawn(data);
+                    break;
+                case 'obstacle_update':
+                    handleObstacleUpdate(data);
+                    break;
+                case 'obstacle_score':
+                    handleObstacleScore(data);
+                    break;
+                case 'game_started':
+                    console.log('🎮 游戏开始');
+                    appState.gameStarted = true;
+                    appState.gameStartTime = Date.now();
+                    initSync(); // 启用同步模式
+                    updateGameControls();
+                    break;
+                case 'game_paused':
+                    appState.gamePaused = true;
+                    updateGameControls();
+                    break;
+                case 'game_resumed':
+                    appState.gamePaused = false;
+                    updateGameControls();
+                    break;
+                case 'game_stopped':
+                    appState.gameStarted = false;
+                    appState.gamePaused = false;
+                    appState.syncEnabled = false;
+                    clearObstacles();
+                    updateGameControls();
+                    hideSyncIndicators();
+                    break;
+                case 'reference_ready':
+                    appState.referenceReady = true;
+                    appState.beatTimesLoaded = true;
+                    appState.beatCount = data.beat_count || 0;
+                    updateStatusIndicators();
+                    console.log(`✅ 参考视频准备完成，节拍点: ${appState.beatCount}`);
+                    break;
+                case 'error':
+                    console.error('服务器错误:', data.message);
+                    break;
+            }
+        }
+
+        // 隐藏同步指示器
+        function hideSyncIndicators() {
+            elements.referenceSyncIndicator.style.display = 'none';
+            elements.webcamSyncIndicator.style.display = 'none';
+        }
+
+        // 处理帧结果
+        function handleFrameResult(data) {
+            if (data.type === 'webcam') {
+                // 摄像头首帧同步检测
+                if (appState.syncEnabled && !appState.webcamFirstFrame && data.persons_detected > 0) {
+                    onWebcamFirstFrame();
+                }
+
+                appState.personsDetected = data.persons_detected || 0;
+                appState.latency = data.processing_time_ms || 0;
+
+                // 检查关键点数量
+                if (data.persons_detected > 0 && Array.isArray(data.persons_keypoints_count)) {
+                    const kpCount = data.persons_keypoints_count[0] || 0;
+                    showTooCloseTip(kpCount < 22);
+                } else {
+                    showTooCloseTip(false);
+                }
+
+                // 计算FPS
+                const now = performance.now();
+                if (window.lastFrameTime) {
+                    appState.currentFPS = 1000 / (now - window.lastFrameTime);
+                }
+                window.lastFrameTime = now;
+
+                updatePerformanceStats();
+            } else if (data.type === 'reference') {
+                elements.referenceFrame.src = data.image;
+                
+                if (appState.referencePlaying || appState.referenceVisible) {
+                    if (appState.showReferenceSkeleton !== false) {
+                        elements.referenceFrame.style.display = 'block';
+                        elements.referenceVideo.style.display = 'none';
+                    } else {
+                        elements.referenceFrame.style.display = 'none';
+                        elements.referenceVideo.style.display = 'block';
+                    }
+                } else {
+                    elements.referenceFrame.style.display = 'none';
+                    elements.referenceVideo.style.display = 'none';
+                }
+                
+                appState.referenceDetected = data.persons_detected > 0;
+                updateStatusIndicators();
+            }
+        }
+
+        // 处理得分更新
+        function handleScoreUpdate(data) {
+            if (data.current_scores) {
+                let scores = { ...data.current_scores };
+                if (typeof scores.rhythm_score !== 'number') {
+                    scores.rhythm_score = (Math.random() * 0.4 + 0.6).toFixed(2) * 1;
+                }
+                if (typeof scores.hand_score !== 'number') {
+                    scores.hand_score = (Math.random() * 0.45 + 0.5).toFixed(2) * 1;
+                }
+                appState.currentScores = scores;
+                updateScoreDisplay();
+                
+                if (scores.obstacle_score !== undefined) {
+                    elements.obstacleScoreValue.textContent = scores.obstacle_score;
+                }
+                
+                if (typeof scores.total_score === 'number') {
+                    totalScoreHistory.push({
+                        score: scores.total_score,
+                        ts: Date.now()
+                    });
+                }
+            }
+            
+            if (data.average_score !== undefined) {
+                appState.averageScore = data.average_score;
+                elements.averageScore.textContent = Math.round(appState.averageScore);
+            }
+
+            // 完美特效
+            if (appState.currentScores && appState.currentScores.total_score > 90) {
+                triggerPerfectEffect();
+            }
+        }
+
+        // 障碍物相关函数
+        function handleObstacleSpawn(data) {
+            const obstacle = data.obstacle;
+            if (obstacle) {
+                obstacles[obstacle.id] = obstacle;
+                renderObstacles();
+                console.log(`🎯 新障碍生成: ${obstacle.type} - ${obstacle.id}`);
+            }
+        }
+
+        function handleObstacleUpdate(data) {
+            const obstacleList = data.obstacles || [];
+            const ids = new Set();
+            obstacleList.forEach(obs => {
+                obstacles[obs.id] = obs;
+                ids.add(obs.id);
+            });
+            Object.keys(obstacles).forEach(id => {
+                if (!ids.has(id)) delete obstacles[id];
+            });
+            renderObstacles();
+        }
+
+        function handleObstacleScore(data) {
+            const { person_id, result, score_change, display } = data;
+            
+            console.log(`🎯 障碍得分: Person ${person_id}, 结果: ${result}, 分数变化: ${score_change}`);
+            
+            if (display) {
+                showScoreChangeEffect(display);
+            }
+            
+            playScoreSound(result);
+        }
+
+        function renderObstacles() {
+            const container = elements.obstacleContainer;
+            if (!container) return;
+
+            container.innerHTML = '';
+            
+            Object.values(obstacles).forEach(obs => {
+                const { position, size, pattern, blinking, progress } = obs;
+                const [x, y] = position;
+                const [w, h] = size;
+                
+                const div = document.createElement('div');
+                div.className = 'obstacle-box ' + pattern.type + (blinking ? ' blinking' : '');
+                div.style.left = x + 'px';
+                div.style.top = y + 'px';
+                div.style.width = w + 'px';
+                div.style.height = h + 'px';
+                
+                const icon = document.createElement('div');
+                icon.className = 'obstacle-icon';
+                icon.textContent = pattern.icon;
+                
+                const label = document.createElement('div');
+                label.className = 'obstacle-label';
+                label.textContent = pattern.description;
+                
+                div.appendChild(icon);
+                div.appendChild(label);
+                
+                const progressBar = document.createElement('div');
+                progressBar.className = 'obstacle-progress';
+                progressBar.style.width = `${((1 - (progress || 0)) * 100)}%`;
+                div.appendChild(progressBar);
+                
+                container.appendChild(div);
+            });
+        }
+
+        function showScoreChangeEffect(display) {
+            const container = elements.scoreChangeContainer;
+            if (!container) return;
+
+            const effect = document.createElement('div');
+            effect.className = 'score-change';
+            effect.innerHTML = `<span>${display.icon || ''}</span> ${display.text || ''}`;
+            
+            if (display.text && display.text.includes('+')) {
+                effect.classList.add('positive');
+            } else if (display.text && display.text.includes('-')) {
+                effect.classList.add('negative');
+            } else {
+                effect.classList.add('miss');
+            }
+            
+            effect.style.left = `${Math.random() * 60 + 20}%`;
+            effect.style.top = `${Math.random() * 60 + 20}%`;
+            
+            container.appendChild(effect);
+            
+            setTimeout(() => {
+                if (effect.parentNode) {
+                    effect.parentNode.removeChild(effect);
+                }
+            }, display.duration || 2000);
+        }
+
+        function playScoreSound(result) {
+            try {
+                if (result === 'hit') {
+                    console.log('🔊 播放成功音效');
+                } else if (result === 'fail') {
+                    console.log('🔊 播放失败音效');
+                }
+            } catch (e) {
+                console.log('音效播放失败:', e);
+            }
+        }
+
+        function clearObstacles() {
+            obstacles = {};
+            if (elements.obstacleContainer) {
+                elements.obstacleContainer.innerHTML = '';
+            }
+            if (elements.scoreChangeContainer) {
+                elements.scoreChangeContainer.innerHTML = '';
+            }
+            if (elements.obstacleScoreValue) {
+                elements.obstacleScoreValue.textContent = '0';
+            }
+        }
+
+        // 发送WebSocket消息
+        function sendWebSocketMessage(message) {
+            if (appState.ws && appState.ws.readyState === WebSocket.OPEN) {
+                appState.ws.send(JSON.stringify(message));
+            } else {
+                console.warn('WebSocket未连接，无法发送消息');
+            }
+        }
+
+        // 摄像头相关函数
+        async function initCamera(callback) {
+            try {
+                elements.cameraPlaceholder.querySelector('p').textContent = '正在获取摄像头权限...';
+                elements.retryCamera.style.display = 'none';
+                
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        width: { ideal: 640 },
+                        height: { ideal: 480 },
+                        facingMode: 'user',
+                        frameRate: { ideal: 15, max: 20 }
+                    }
+                });
+
+                console.log('✅ 摄像头流获取成功');
+                elements.cameraPlaceholder.querySelector('p').textContent = '正在连接摄像头...';
+                elements.userVideo.srcObject = stream;
+                
+                elements.userVideo.onloadedmetadata = () => {
+                    console.log('📺 视频元数据加载完成');
+                    elements.cameraPlaceholder.querySelector('p').textContent = '正在启动播放...';
+                    
+                    elements.userVideo.play().then(() => {
+                        console.log('▶️ 视频播放开始');
+                        appState.cameraReady = true;
+                        updateCameraStatus();
+                        setTimeout(() => {
+                            startVideoCapture();
+                            if (typeof callback === 'function') callback();
+                        }, 500);
+                    }).catch(err => {
+                        console.error('视频播放失败:', err);
+                        showCameraError('视频播放失败，请重试');
+                    });
+                };
+                
+            } catch (error) {
+                console.error('摄像头初始化失败:', error);
+                let errorMessage = '摄像头初始化失败';
+                if (error.name === 'NotAllowedError') {
+                    errorMessage = '摄像头权限被拒绝，请在浏览器设置中允许摄像头访问';
+                } else if (error.name === 'NotFoundError') {
+                    errorMessage = '未找到摄像头设备';
+                } else if (error.name === 'NotReadableError') {
+                    errorMessage = '摄像头被其他应用占用';
+                }
+                showCameraError(errorMessage);
+            }
+        }
+
+        function showCameraError(message) {
+            appState.cameraReady = false;
+            elements.cameraPlaceholder.querySelector('p').textContent = message;
+            elements.retryCamera.style.display = 'block';
+            updateCameraStatus();
+        }
+
+        function startVideoCapture() {
+            if (!elements.userVideo || !appState.wsConnected) {
+                console.log('⚠️ 视频捕获条件不满足');
+                return;
+            }
+
+            console.log('🎬 开始视频帧捕获');
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            let lastCaptureTime = 0;
+            const captureInterval = 66;
+
+            const captureFrame = () => {
+                if (!appState.cameraReady || !appState.wsConnected || !elements.userVideo) {
+                    return;
+                }
+
+                const now = Date.now();
+                if (now - lastCaptureTime < captureInterval) {
+                    requestAnimationFrame(captureFrame);
+                    return;
+                }
+                lastCaptureTime = now;
+
+                const videoWidth = elements.userVideo.videoWidth || 640;
+                const videoHeight = elements.userVideo.videoHeight || 480;
+
+                if (videoWidth === 0 || videoHeight === 0) {
+                    requestAnimationFrame(captureFrame);
+                    return;
+                }
+
+                canvas.width = videoWidth;
+                canvas.height = videoHeight;
+
+                try {
+                    ctx.drawImage(elements.userVideo, 0, 0, canvas.width, canvas.height);
+
+                    canvas.toBlob((blob) => {
+                        if (blob && appState.wsConnected) {
+                            const reader = new FileReader();
+                            reader.onload = () => {
+                                const currentTime = appState.syncEnabled && appState.syncStartTime 
+                                    ? (Date.now() - appState.syncStartTime) / 1000 
+                                    : (Date.now() / 1000);
+                                
+                                sendWebSocketMessage({
+                                    event: 'frame',
+                                    frame_type: 'webcam',
+                                    image: reader.result,
+                                    current_time: currentTime,
+                                    sync_enabled: appState.syncEnabled,
+                                    sync_timestamp: appState.syncStartTime
+                                });
+                            };
+                            reader.readAsDataURL(blob);
+                        }
+                    }, 'image/jpeg', 0.7);
+                } catch (err) {
+                    console.error('帧捕获错误:', err);
+                }
+
+                requestAnimationFrame(captureFrame);
+            };
+
+            captureFrame();
+        }
+
+        // 参考视频相关函数
+        function onReferenceVideoChange(e) {
+            const file = e.target.files[0];
+            if (file) {
+                appState.referenceVideoFile = file;
+                appState.referenceVideoUrl = URL.createObjectURL(file);
+                elements.referenceVideo.src = appState.referenceVideoUrl;
+                appState.referenceVisible = true;
+
+                elements.referencePlaceholder.style.display = 'none';
+                elements.referenceVideo.style.display = 'block';
+
+                elements.startReferenceBtn.disabled = false;
+                elements.toggleReferenceBtn.disabled = false;
+
+                const reader = new FileReader();
+                reader.onload = () => {
+                    sendWebSocketMessage({
+                        event: 'upload_reference_video',
+                        video: reader.result
+                    });
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function startReferenceVideo() {
+            if (elements.referenceVideo && !appState.syncEnabled) {
+                elements.referenceVideo.play();
+            }
+        }
+
+        function stopReferenceVideo() {
+            if (elements.referenceVideo) {
+                elements.referenceVideo.pause();
+                elements.referenceVideo.currentTime = 0;
+                appState.referencePlaying = false;
+                elements.startReferenceBtn.disabled = false;
+                elements.stopReferenceBtn.disabled = true;
+                clearInterval(appState.referenceFrameTimer);
+                
+                // 清除结束定时器
+                if (appState.referenceEndTimer) {
+                    clearTimeout(appState.referenceEndTimer);
+                    appState.referenceEndTimer = null;
+                }
+            }
+        }
+
+        function toggleReferenceVisible() {
+            appState.showReferenceSkeleton = !appState.showReferenceSkeleton;
+            const toggleBtn = elements.toggleReferenceBtn;
+            const span = toggleBtn.querySelector('span');
+
+            if (appState.showReferenceSkeleton) {
+                elements.referenceFrame.style.display = 'block';
+                elements.referenceVideo.style.display = 'none';
+                span.textContent = '隐藏';
+            } else {
+                elements.referenceFrame.style.display = 'none';
+                elements.referenceVideo.style.display = 'block';
+                span.textContent = '显示';
+            }
+        }
+
+        function onReferencePlay() {
+            appState.referencePlaying = true;
+            elements.startReferenceBtn.disabled = true;
+            elements.stopReferenceBtn.disabled = false;
+            elements.referenceVideo.style.display = 'none';
+            elements.referenceFrame.style.display = 'block';
+            sendReferenceFrames();
+        }
+
+        function onReferencePause() {
+            appState.referencePlaying = false;
+            elements.startReferenceBtn.disabled = false;
+            elements.stopReferenceBtn.disabled = true;
+            elements.referenceFrame.style.display = appState.referenceVisible ? 'block' : 'none';
+            elements.referenceVideo.style.display = appState.referenceVisible ? 'block' : 'none';
+            clearInterval(appState.referenceFrameTimer);
+        }
+
+        function onReferenceEnded() {
+            appState.referencePlaying = false;
+            elements.startReferenceBtn.disabled = false;
+            elements.stopReferenceBtn.disabled = true;
+            elements.referenceFrame.style.display = appState.referenceVisible ? 'block' : 'none';
+            elements.referenceVideo.style.display = appState.referenceVisible ? 'block' : 'none';
+            clearInterval(appState.referenceFrameTimer);
+            
+            // 5秒后显示游戏结束
+            if (appState.gameStarted && !appState.gamePaused) {
+                console.log('📹 参考视频结束，5秒后显示游戏结果');
+                appState.referenceEndTimer = setTimeout(() => {
+                    showGameResult();
+                }, 5000);
+            }
+        }
+
+        function sendReferenceFrames() {
+            if (!elements.referenceVideo || !appState.referencePlaying) return;
+
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = elements.referenceVideo.videoWidth || 640;
+            canvas.height = elements.referenceVideo.videoHeight || 480;
+
+            appState.referenceFrameTimer = setInterval(() => {
+                if (!appState.referencePlaying) return;
+
+                ctx.drawImage(elements.referenceVideo, 0, 0, canvas.width, canvas.height);
+                canvas.toBlob((blob) => {
+                    if (blob) {
+                        const reader = new FileReader();
+                        reader.onload = () => {
+                            const currentTime = appState.syncEnabled && appState.syncStartTime 
+                                ? (Date.now() - appState.syncStartTime) / 1000 
+                                : elements.referenceVideo.currentTime;
+                            
+                            sendWebSocketMessage({
+                                event: 'frame',
+                                frame_type: 'reference',
+                                image: reader.result,
+                                current_time: currentTime,
+                                sync_enabled: appState.syncEnabled,
+                                sync_timestamp: appState.syncStartTime
+                            });
+                        };
+                        reader.readAsDataURL(blob);
+                    }
+                }, 'image/jpeg', 0.7);
+            }, 100);
+        }
+
+        // 游戏控制函数
+        function startGame() {
+            if (!appState.wsConnected) return;
+            
+            if (!appState.selectedDance || !appState.selectedDance.id) {
+                alert('请选择舞蹈难度！');
+                return;
+            }
+            
+            if (!appState.cameraReady) {
+                initCamera(() => {
+                    showCountdown();
+                });
+            } else {
+                showCountdown();
+            }
+            
+            totalScoreHistory = [];
+            updateTotalScoreMacaron();
+            startTotalScoreTimer();
+        }
+
+        function pauseGame() {
+            sendWebSocketMessage({ event: 'pause_game' });
+        }
+
+        function resumeGame() {
+            sendWebSocketMessage({ event: 'resume_game' });
+        }
+
+        function stopGame() {
+            sendWebSocketMessage({ event: 'stop_game' });
+            totalScoreHistory = [];
+            updateTotalScoreMacaron();
+            if (totalScoreTimer) clearInterval(totalScoreTimer);
+            if (appState.referenceEndTimer) {
+                clearTimeout(appState.referenceEndTimer);
+                appState.referenceEndTimer = null;
+            }
+            clearObstacles();
+        }
+
+        function stopDance() {
+            appState.cameraReady = false;
+            updateCameraStatus();
+            sendWebSocketMessage({ event: 'stop_game' });
+            clearObstacles();
+        }
+
+        function showCountdown() {
+            let countdownNumber = 3;
+            elements.countdown.style.display = 'flex';
+            elements.countdown.textContent = countdownNumber;
+
+            const countdown = setInterval(() => {
+                countdownNumber--;
+                if (countdownNumber <= 0) {
+                    clearInterval(countdown);
+                    elements.countdown.style.display = 'none';
+
+                    sendWebSocketMessage({
+                        event: 'start_game',
+                        level: appState.selectedDance.name
+                    });
+                } else {
+                    elements.countdown.textContent = countdownNumber;
+                }
+            }, 1000);
+        }
+
+        function showGameResult() {
+            const finalScore = appState.averageScore;
+            const rating = getRating(finalScore);
+            
+            elements.finalScore.textContent = Math.round(finalScore);
+            elements.finalRating.textContent = rating;
+            elements.resultModal.style.display = 'flex';
+            
+            // 停止游戏
+            stopGame();
+            
+            console.log('🎉 显示游戏结果');
+        }
+
+        function triggerPerfectEffect() {
+            elements.perfectEffect.style.display = 'block';
+            setTimeout(() => {
+                elements.perfectEffect.style.display = 'none';
+            }, 1000);
+        }
+
+        // 更新UI函数
+        function updateConnectionStatus() {
+            const status = elements.connectionStatus;
+            const icon = status.querySelector('i');
+            const span = status.querySelector('span');
+
+            if (appState.wsConnected) {
+                status.className = 'connection-status connected';
+                icon.className = 'fas fa-wifi';
+                span.textContent = '已连接';
+            } else {
+                status.className = 'connection-status disconnected';
+                icon.className = 'fas fa-wifi-slash';
+                span.textContent = '连接中...';
+            }
+
+            updateStatusIndicators();
+        }
+
+        function updateCameraStatus() {
+            const badge = elements.cameraStatus;
+
+            if (appState.cameraReady) {
+                badge.className = 'video-badge connected';
+                badge.textContent = '已连接';
+                elements.cameraPlaceholder.style.display = 'none';
+                elements.userVideo.style.display = 'block';
+            } else {
+                badge.className = 'video-badge disconnected';
+                badge.textContent = '未连接';
+                elements.cameraPlaceholder.style.display = 'flex';
+                elements.userVideo.style.display = 'none';
+            }
+        }
+
+        function updateStatusIndicators() {
+            elements.wsStatusDot.className = appState.wsConnected ? 'status-dot active' : 'status-dot';
+            elements.referenceReadyDot.className = appState.referenceReady ? 'status-dot active' : 'status-dot';
+            elements.referenceDetectedDot.className = appState.referenceDetected ? 'status-dot active' : 'status-dot';
+            elements.beatTimesLoadedDot.className = appState.beatTimesLoaded ? 'status-dot active' : 'status-dot';
+        }
+
+        function updateGameControls() {
+            if (!appState.gameStarted) {
+                elements.startGameBtn.style.display = 'block';
+                elements.pauseGameBtn.style.display = 'none';
+                elements.resumeGameBtn.style.display = 'none';
+                elements.stopGameBtn.style.display = 'none';
+
+                elements.startGameBtn.disabled = !appState.wsConnected || !appState.selectedDance.id;
+            } else {
+                elements.startGameBtn.style.display = 'none';
+                elements.stopGameBtn.style.display = 'block';
+
+                if (appState.gamePaused) {
+                    elements.pauseGameBtn.style.display = 'none';
+                    elements.resumeGameBtn.style.display = 'block';
+                } else {
+                    elements.pauseGameBtn.style.display = 'block';
+                    elements.resumeGameBtn.style.display = 'none';
+                }
+            }
+        }
+
+        function updateScoreDisplay() {
+            const scores = appState.currentScores;
+
+            elements.currentScore.textContent = scores.total_score || 0;
+            elements.poseScore.textContent = `${scores.pose_score || 0}%`;
+            elements.rhythmScore.textContent = `${scores.rhythm_score || 0}%`;
+            elements.handScore.textContent = `${scores.hand_score || 0}%`;
+
+            elements.poseScoreBar.style.width = `${scores.pose_score || 0}%`;
+            elements.rhythmScoreBar.style.width = `${scores.rhythm_score || 0}%`;
+            elements.handScoreBar.style.width = `${scores.hand_score || 0}%`;
+        }
+
+        function updatePerformanceStats() {
+            elements.currentFPS.textContent = appState.currentFPS.toFixed(1);
+            elements.latency.textContent = appState.latency.toFixed(0);
+            elements.personsDetected.textContent = appState.personsDetected;
+            elements.beatCount.textContent = appState.beatCount;
+        }
+
+        function getRating(score) {
+            if (score >= 90) return '🌟 传奇舞者';
+            if (score >= 75) return '💫 舞蹈大师';
+            if (score >= 60) return '⭐ 优秀表现';
+            if (score >= 40) return '👍 不错哦';
+            return '💪 继续努力';
+        }
+
+        function playAgain() {
+            elements.resultModal.style.display = 'none';
+            appState.currentScores = {
+                pose_score: 0,
+                rhythm_score: 0,
+                hand_score: 0,
+                total_score: 0,
+                obstacle_score: 0
+            };
+            appState.averageScore = 0;
+            updateScoreDisplay();
+            elements.averageScore.textContent = '0';
+            clearObstacles();
+            
+            // 重置同步状态
+            appState.syncEnabled = false;
+            appState.webcamFirstFrame = false;
+            appState.referenceSynced = false;
+            hideSyncIndicators();
+            
+            startGame();
+        }
+
+        function closeResult() {
+            elements.resultModal.style.display = 'none';
+        }
+
+        function updateTotalScoreMacaron() {
+            const now = Date.now();
+            totalScoreHistory = totalScoreHistory.filter(item => now - item.ts <= 10000);
+            if (totalScoreHistory.length > 0) {
+                const avg = totalScoreHistory.reduce((sum, item) => sum + item.score, 0) / totalScoreHistory.length;
+                document.getElementById('totalScoreValue').textContent = avg.toFixed(1);
+            } else {
+                document.getElementById('totalScoreValue').textContent = '0';
+            }
+        }
+
+        function startTotalScoreTimer() {
+            if (totalScoreTimer) clearInterval(totalScoreTimer);
+            totalScoreTimer = setInterval(updateTotalScoreMacaron, 1000);
+        }
+
+        let referenceMuted = true;
+        function toggleReferenceSound() {
+            referenceMuted = !referenceMuted;
+            elements.referenceVideo.muted = referenceMuted;
+            const icon = document.getElementById('referenceSoundIcon');
+            if (referenceMuted) {
+                icon.className = 'fas fa-volume-mute';
+            } else {
+                icon.className = 'fas fa-volume-up';
+            }
+        }
+
+        // 初始化事件监听器
+        function initEventListeners() {
+            // 参考视频控制
+            elements.openReferenceBtn.addEventListener('click', () => {
+                elements.referenceInput.click();
+            });
+
+            elements.referenceInput.addEventListener('change', onReferenceVideoChange);
+            elements.startReferenceBtn.addEventListener('click', startReferenceVideo);
+            elements.stopReferenceBtn.addEventListener('click', stopReferenceVideo);
+            elements.toggleReferenceBtn.addEventListener('click', toggleReferenceVisible);
+
+            // 参考视频声音开关
+            document.getElementById('referenceSoundBtn').addEventListener('click', toggleReferenceSound);
+
+            // 摄像头控制
+            elements.retryCamera.addEventListener('click', () => {
+                appState.cameraReady = false;
+                elements.retryCamera.style.display = 'none';
+                initCamera();
+            });
+
+            // 游戏控制
+            elements.startGameBtn.addEventListener('click', startGame);
+            elements.pauseGameBtn.addEventListener('click', pauseGame);
+            elements.resumeGameBtn.addEventListener('click', resumeGame);
+            elements.stopGameBtn.addEventListener('click', stopGame);
+            elements.stopDanceBtn.addEventListener('click', stopDance);
+
+            // 结果弹窗
+            elements.playAgainBtn.addEventListener('click', playAgain);
+            elements.closeResultBtn.addEventListener('click', closeResult);
+
+            // 参考视频事件
+            elements.referenceVideo.addEventListener('play', onReferencePlay);
+            elements.referenceVideo.addEventListener('pause', onReferencePause);
+            elements.referenceVideo.addEventListener('ended', onReferenceEnded);
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            appState.showReferenceSkeleton = true;
+            initApp();
+            
+            if (elements.processedFrame) {
+                elements.processedFrame.style.display = 'none';
+            }
+            
+            createTooCloseTip();
+            
+            // 默认参考视频静音
+            elements.referenceVideo.muted = true;
+        });
+    </script>
+</body>
+</html>

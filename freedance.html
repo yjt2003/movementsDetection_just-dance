@@ -1,0 +1,1594 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FreeDance - 自由舞蹈模式</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* 马卡龙色彩系统 */
+            --macaron-pink: #FFB5BA;
+            --macaron-mint: #B5E5CF;
+            --macaron-lemon: #FFF4B5;
+            --macaron-lavender: #D4B5FF;
+            --macaron-peach: #FFD4B5;
+            --macaron-sky: #B5D4FF;
+
+            /* 中性色 */
+            --white: #FFFFFF;
+            --light-gray: #F8F9FA;
+            --gray: #E9ECEF;
+            --dark-gray: #6C757D;
+            --black: #212529;
+
+            /* 渐变 */
+            --gradient-main: linear-gradient(135deg, var(--macaron-pink) 0%, var(--macaron-mint) 100%);
+            --gradient-score: linear-gradient(135deg, var(--macaron-lemon) 0%, var(--macaron-peach) 100%);
+            --gradient-perfect: linear-gradient(135deg, var(--macaron-lavender) 0%, var(--macaron-sky) 100%);
+            --gradient-energy: linear-gradient(90deg, var(--macaron-lemon) 0%, var(--macaron-peach) 50%, var(--macaron-pink) 100%);
+            --gradient-cosmic: linear-gradient(135deg, var(--macaron-pink) 0%, var(--macaron-lavender) 50%, var(--macaron-sky) 100%);
+
+            /* 阴影 */
+            --shadow-soft: 0 8px 32px rgba(255, 181, 186, 0.15);
+            --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.12);
+            --shadow-glow: 0 0 30px rgba(255, 181, 186, 0.3);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            color: var(--black);
+        }
+
+        /* 动态背景粒子效果 */
+        .background-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: var(--macaron-pink);
+            border-radius: 50%;
+            animation: float 6s infinite ease-in-out;
+            opacity: 0.6;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.3; }
+            50% { transform: translateY(-80px) rotate(180deg); opacity: 0.8; }
+        }
+
+        /* 顶部导航 - 马卡龙风格 */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow-soft);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: var(--gradient-main);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .logo i {
+            color: var(--macaron-pink);
+            margin-right: 0.5rem;
+        }
+
+        .mode-indicator {
+            background: var(--gradient-cosmic);
+            padding: 0.5rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 600;
+            color: white;
+            box-shadow: var(--shadow-card);
+            animation: gentle-pulse 3s infinite;
+        }
+
+        @keyframes gentle-pulse {
+            0%, 100% { box-shadow: var(--shadow-card); }
+            50% { box-shadow: var(--shadow-hover); }
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .score-display {
+            background: var(--gradient-score);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            color: var(--black);
+            box-shadow: var(--shadow-card);
+        }
+
+        .back-btn {
+            background: var(--gradient-perfect);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-card);
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        /* 主要内容区域 */
+        .main-content {
+            display: flex;
+            gap: 2rem;
+            padding: 2rem;
+            max-width: 1600px;
+            margin: 0 auto;
+            min-height: calc(100vh - 80px);
+        }
+
+        /* 左侧控制面板 */
+        .control-panel {
+            width: 350px;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .control-card {
+            background: white;
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-card);
+            transition: all 0.3s ease;
+        }
+
+        .control-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--black);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-title i {
+            color: var(--macaron-pink);
+        }
+
+        /* 音乐选择 */
+        .music-selector {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .music-option {
+            background: var(--light-gray);
+            border: 2px solid transparent;
+            border-radius: 15px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .music-option:hover {
+            background: rgba(255, 181, 186, 0.1);
+            transform: scale(1.02);
+        }
+
+        .music-option.active {
+            background: var(--gradient-main);
+            border-color: var(--macaron-pink);
+            color: white;
+            box-shadow: var(--shadow-card);
+        }
+
+        .music-icon {
+            font-size: 1.5rem;
+            width: 40px;
+            text-align: center;
+        }
+
+        .music-info {
+            flex: 1;
+        }
+
+        .music-name {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .music-bpm {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        /* 游戏控制 */
+        .game-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .control-button {
+            background: var(--gradient-main);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            padding: 1rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            box-shadow: var(--shadow-card);
+        }
+
+        .control-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .control-button:disabled {
+            background: var(--gray);
+            color: var(--dark-gray);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .control-button.stop {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ffa8a8 100%);
+        }
+
+        .control-button.pause {
+            background: var(--gradient-score);
+            color: var(--black);
+        }
+
+        /* 难度选择器 */
+        .difficulty-selector {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        /* 中间视频区域 */
+        .video-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .video-container {
+            background: white;
+            border-radius: 24px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-card);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .video-container:hover {
+            box-shadow: var(--shadow-hover);
+            transform: translateY(-2px);
+        }
+
+        .video-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .video-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--black);
+            background: var(--gradient-main);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            background: var(--macaron-mint);
+            color: var(--black);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .video-frame {
+            width: 100%;
+            height: 500px;
+            background: var(--light-gray);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid var(--macaron-sky);
+        }
+
+        .video-placeholder {
+            color: var(--dark-gray);
+            font-size: 1.1rem;
+            text-align: center;
+        }
+
+        .video-placeholder i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--macaron-pink);
+            opacity: 0.7;
+        }
+
+        .video-display {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 12px;
+        }
+
+        #userVideo {
+            transform: scaleX(-1);
+        }
+
+        /* 挑战区域 */
+        .challenge-area {
+            background: white;
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-card);
+            border: 2px solid var(--macaron-mint);
+        }
+
+        .current-challenge {
+            text-align: center;
+        }
+
+        .challenge-icon {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            animation: gentle-bounce 2s infinite;
+        }
+
+        @keyframes gentle-bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        .challenge-text {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--black);
+            margin-bottom: 0.5rem;
+        }
+
+        .challenge-timer {
+            font-size: 2rem;
+            font-weight: 700;
+            background: var(--gradient-score);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* 右侧状态面板 */
+        .status-panel {
+            width: 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        /* 能量条 */
+        .energy-meter {
+            text-align: center;
+        }
+
+        .energy-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: conic-gradient(var(--gradient-energy) 0deg, var(--gray) 0deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            position: relative;
+            box-shadow: var(--shadow-card);
+        }
+
+        .energy-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--black);
+        }
+
+        .energy-label {
+            color: var(--dark-gray);
+            font-weight: 600;
+        }
+
+        /* 连击显示 */
+        .combo-display {
+            text-align: center;
+            background: var(--gradient-perfect);
+            border-radius: 20px;
+            padding: 1.5rem;
+            color: white;
+            box-shadow: var(--shadow-card);
+        }
+
+        .combo-number {
+            font-size: 3rem;
+            font-weight: 800;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .combo-label {
+            font-size: 1.1rem;
+            font-weight: 600;
+            opacity: 0.9;
+        }
+
+        /* 实时评分 */
+        .score-breakdown {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .score-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--light-gray);
+            padding: 0.75rem;
+            border-radius: 15px;
+            border-left: 4px solid var(--macaron-pink);
+        }
+
+        .score-name {
+            font-weight: 500;
+            color: var(--black);
+        }
+
+        .score-value {
+            font-weight: 700;
+            font-size: 1.1rem;
+            background: var(--gradient-score);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .score-bar {
+            width: 100%;
+            height: 6px;
+            background: var(--gray);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .score-fill {
+            height: 100%;
+            background: var(--gradient-main);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        /* 动作历史 */
+        .move-history {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .move-item {
+            background: var(--light-gray);
+            padding: 0.75rem;
+            border-radius: 12px;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border-left: 3px solid var(--macaron-mint);
+            transition: all 0.2s ease;
+        }
+
+        .move-item:hover {
+            background: rgba(181, 229, 207, 0.2);
+        }
+
+        .move-icon {
+            font-size: 1.2rem;
+            color: var(--macaron-mint);
+        }
+
+        .move-name {
+            flex: 1;
+            font-weight: 500;
+            color: var(--black);
+        }
+
+        .move-score {
+            font-weight: 600;
+            background: var(--gradient-score);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* 特效 */
+        .perfect-explosion {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3rem;
+            font-weight: 800;
+            background: var(--gradient-perfect);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            pointer-events: none;
+            animation: gentle-explode 2s ease-out forwards;
+            z-index: 1000;
+        }
+
+        @keyframes gentle-explode {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0);
+            }
+            30% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1.2);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(1.5) translateY(-80px);
+            }
+        }
+
+        /* 连击特效 */
+        .combo-effect {
+            position: absolute;
+            top: 20%;
+            right: 10%;
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: var(--gradient-cosmic);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            pointer-events: none;
+            animation: gentle-combo-pop 1.5s ease-out forwards;
+            z-index: 999;
+        }
+
+        @keyframes gentle-combo-pop {
+            0% {
+                opacity: 0;
+                transform: scale(0) rotate(-90deg);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.1) rotate(0deg);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(1) rotate(90deg) translateX(50px);
+            }
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 1200px) {
+            .main-content {
+                flex-direction: column;
+                padding: 1rem;
+            }
+            
+            .control-panel,
+            .status-panel {
+                width: 100%;
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+            
+            .control-card {
+                flex: 1;
+                min-width: 250px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 1rem;
+            }
+            
+            .logo {
+                font-size: 1.5rem;
+            }
+            
+            .video-frame {
+                height: 300px;
+            }
+            
+            .control-panel,
+            .status-panel {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 动态背景粒子 -->
+    <div class="background-particles" id="particles"></div>
+
+    <div class="app-container">
+        <!-- 顶部导航 -->
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-heart"></i> FreeDance
+            </div>
+            <div class="mode-indicator">
+                <i class="fas fa-sparkles"></i> 自由舞蹈模式
+            </div>
+            <div class="header-controls">
+                <div class="score-display">
+                    <i class="fas fa-star"></i> <span id="totalScore">0</span>
+                </div>
+                <button class="back-btn" id="backToReference">
+                    <i class="fas fa-arrow-left"></i> 返回
+                </button>
+            </div>
+        </header>
+
+        <!-- 主要内容 -->
+        <div class="main-content">
+            <!-- 左侧控制面板 -->
+            <div class="control-panel">
+                <!-- 音乐选择 -->
+                <div class="control-card">
+                    <h3 class="card-title">
+                        <i class="fas fa-music"></i> 选择音乐
+                    </h3>
+                    <div class="music-selector" id="musicSelector">
+                        <!-- 音乐选项将由JS生成 -->
+                    </div>
+                </div>
+
+                <!-- 游戏控制 -->
+                <div class="control-card">
+                    <h3 class="card-title">
+                        <i class="fas fa-gamepad"></i> 控制
+                    </h3>
+                    <div class="game-controls">
+                        <button class="control-button" id="startFreeDance">
+                            <i class="fas fa-play"></i> 开始舞蹈
+                        </button>
+                        <button class="control-button pause" id="pauseFreeDance" style="display: none;">
+                            <i class="fas fa-pause"></i> 暂停
+                        </button>
+                        <button class="control-button" id="resumeFreeDance" style="display: none;">
+                            <i class="fas fa-play"></i> 继续
+                        </button>
+                        <button class="control-button stop" id="stopFreeDance" style="display: none;">
+                            <i class="fas fa-stop"></i> 结束
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 挑战设置 -->
+                <div class="control-card">
+                    <h3 class="card-title">
+                        <i class="fas fa-target"></i> 挑战难度
+                    </h3>
+                    <div class="challenge-settings">
+                        <div class="difficulty-selector" id="difficultySelector">
+                            <!-- 难度选项将由JS生成 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 中间视频区域 -->
+            <div class="video-section">
+                <!-- 摄像头显示 -->
+                <div class="video-container">
+                    <div class="video-header">
+                        <h3 class="video-title">
+                            <i class="fas fa-camera"></i> 你的舞台
+                        </h3>
+                        <div class="status-indicator" id="cameraStatus">
+                            <i class="fas fa-circle" style="color: var(--macaron-mint);"></i>
+                            <span>摄像头就绪</span>
+                        </div>
+                    </div>
+
+                    <div class="video-frame" style="position: relative;">
+                        <div class="video-placeholder" id="cameraPlaceholder">
+                            <i class="fas fa-camera-slash"></i>
+                            <p>启动摄像头中...</p>
+                        </div>
+
+                        <video id="userVideo" class="video-display" autoplay muted playsinline style="display:none;"></video>
+
+                        <!-- 特效容器 -->
+                        <div id="effectsContainer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10;"></div>
+                    </div>
+                </div>
+
+                <!-- 当前挑战显示 -->
+                <div class="challenge-area">
+                    <div class="current-challenge">
+                        <div class="challenge-icon" id="challengeIcon">🌸</div>
+                        <div class="challenge-text" id="challengeText">准备好开始自由舞蹈！</div>
+                        <div class="challenge-timer" id="challengeTimer">--</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧状态面板 -->
+            <div class="status-panel">
+                <!-- 能量条 -->
+                <div class="control-card">
+                    <h3 class="card-title">
+                        <i class="fas fa-heart"></i> 能量值
+                    </h3>
+                    <div class="energy-meter">
+                        <div class="energy-circle" id="energyCircle">
+                            <div class="energy-value" id="energyValue">0%</div>
+                        </div>
+                        <div class="energy-label">舞蹈能量</div>
+                    </div>
+                </div>
+
+                <!-- 连击显示 -->
+                <div class="control-card">
+                    <div class="combo-display">
+                        <div class="combo-number" id="comboNumber">0</div>
+                        <div class="combo-label">COMBO</div>
+                    </div>
+                </div>
+
+                <!-- 实时评分 -->
+                <div class="control-card">
+                    <h3 class="card-title">
+                        <i class="fas fa-chart-line"></i> 实时评分
+                    </h3>
+                    <div class="score-breakdown">
+                        <div class="score-item">
+                            <span class="score-name">流畅度</span>
+                            <span class="score-value" id="fluidityScore">0</span>
+                        </div>
+                        <div class="score-bar">
+                            <div class="score-fill" id="fluidityBar"></div>
+                        </div>
+                        
+                        <div class="score-item">
+                            <span class="score-name">节奏感</span>
+                            <span class="score-value" id="rhythmScore">0</span>
+                        </div>
+                        <div class="score-bar">
+                            <div class="score-fill" id="rhythmBar"></div>
+                        </div>
+                        
+                        <div class="score-item">
+                            <span class="score-name">创意度</span>
+                            <span class="score-value" id="creativityScore">0</span>
+                        </div>
+                        <div class="score-bar">
+                            <div class="score-fill" id="creativityBar"></div>
+                        </div>
+                        
+                        <div class="score-item">
+                            <span class="score-name">活跃度</span>
+                            <span class="score-value" id="activityScore">0</span>
+                        </div>
+                        <div class="score-bar">
+                            <div class="score-fill" id="activityBar"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 动作历史 -->
+                <div class="control-card">
+                    <h3 class="card-title">
+                        <i class="fas fa-history"></i> 动作记录
+                    </h3>
+                    <div class="move-history" id="moveHistory">
+                        <div class="move-item">
+                            <div class="move-icon">🌟</div>
+                            <div class="move-name">准备开始</div>
+                            <div class="move-score">--</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // FreeDance 应用状态
+        let freeDanceState = {
+            // 连接状态
+            wsConnected: false,
+            cameraReady: false,
+            ws: null,
+
+            // 游戏状态
+            gameStarted: false,
+            gamePaused: false,
+            gameStartTime: null,
+            currentChallenge: null,
+            
+            // 音乐和难度
+            selectedMusic: null,
+            selectedDifficulty: 'normal',
+            
+            // 评分数据
+            scores: {
+                fluidity: 0,
+                rhythm: 0,
+                creativity: 0,
+                activity: 0,
+                total: 0
+            },
+            
+            // 游戏机制
+            energy: 0,
+            combo: 0,
+            maxCombo: 0,
+            totalScore: 0,
+            
+            // 动作检测
+            lastPoseData: null,
+            moveHistory: [],
+            challengeTimer: null,
+            
+            // 音乐节拍
+            beatTimes: [],
+            currentBeat: 0
+        };
+
+        // 音乐选项
+        const musicOptions = [
+            { id: 1, name: 'Sweet Pop', bpm: 128, icon: '🎵', genre: 'Pop' },
+            { id: 2, name: 'Gentle Beats', bpm: 95, icon: '🎤', genre: 'Hip-Hop' },
+            { id: 3, name: 'Dream Dance', bpm: 140, icon: '✨', genre: 'EDM' },
+            { id: 4, name: 'Soft Groove', bpm: 110, icon: '🌸', genre: 'Funk' },
+            { id: 5, name: 'Pastel Vibes', bpm: 120, icon: '💖', genre: 'Latin' }
+        ];
+
+        // 难度选项
+        const difficultyOptions = [
+            { id: 'easy', name: '轻松', color: 'var(--macaron-mint)', multiplier: 1.0 },
+            { id: 'normal', name: '标准', color: 'var(--macaron-lemon)', multiplier: 1.2 },
+            { id: 'hard', name: '困难', color: 'var(--macaron-peach)', multiplier: 1.5 },
+            { id: 'expert', name: '专家', color: 'var(--macaron-lavender)', multiplier: 2.0 }
+        ];
+
+        // 挑战类型
+        const challengeTypes = [
+            { name: '自由舞蹈', icon: '🌸', description: '尽情释放你的舞蹈天赋！', duration: 30 },
+            { name: '温柔律动', icon: '💫', description: '展示你的优雅动作！', duration: 15 },
+            { name: '节奏天使', icon: '🎵', description: '跟上节拍，展现节奏感！', duration: 20 },
+            { name: '创意花园', icon: '🌺', description: '发挥创意，做出独特动作！', duration: 25 },
+            { name: '甜蜜连击', icon: '💖', description: '保持连击，获得高分！', duration: 30 }
+        ];
+
+        // DOM 元素
+        const elements = {
+            // 控制元素
+            musicSelector: document.getElementById('musicSelector'),
+            difficultySelector: document.getElementById('difficultySelector'),
+            startFreeDance: document.getElementById('startFreeDance'),
+            pauseFreeDance: document.getElementById('pauseFreeDance'),
+            resumeFreeDance: document.getElementById('resumeFreeDance'),
+            stopFreeDance: document.getElementById('stopFreeDance'),
+            backToReference: document.getElementById('backToReference'),
+            
+            // 视频元素
+            userVideo: document.getElementById('userVideo'),
+            cameraPlaceholder: document.getElementById('cameraPlaceholder'),
+            cameraStatus: document.getElementById('cameraStatus'),
+            
+            // 挑战显示
+            challengeIcon: document.getElementById('challengeIcon'),
+            challengeText: document.getElementById('challengeText'),
+            challengeTimer: document.getElementById('challengeTimer'),
+            
+            // 评分显示
+            totalScore: document.getElementById('totalScore'),
+            energyValue: document.getElementById('energyValue'),
+            energyCircle: document.getElementById('energyCircle'),
+            comboNumber: document.getElementById('comboNumber'),
+            
+            // 分数条
+            fluidityScore: document.getElementById('fluidityScore'),
+            rhythmScore: document.getElementById('rhythmScore'),
+            creativityScore: document.getElementById('creativityScore'),
+            activityScore: document.getElementById('activityScore'),
+            fluidityBar: document.getElementById('fluidityBar'),
+            rhythmBar: document.getElementById('rhythmBar'),
+            creativityBar: document.getElementById('creativityBar'),
+            activityBar: document.getElementById('activityBar'),
+            
+            // 历史记录
+            moveHistory: document.getElementById('moveHistory'),
+            effectsContainer: document.getElementById('effectsContainer')
+        };
+
+        // 初始化应用
+        function initFreeDanceApp() {
+            console.log('🌸 FreeDance 马卡龙模式初始化');
+            createBackgroundParticles();
+            initMusicSelector();
+            initDifficultySelector();
+            initWebSocket();
+            initEventListeners();
+            initCamera();
+        }
+
+        // 创建背景粒子效果
+        function createBackgroundParticles() {
+            const container = document.getElementById('particles');
+            const colors = ['var(--macaron-pink)', 'var(--macaron-mint)', 'var(--macaron-lemon)', 'var(--macaron-lavender)'];
+            
+            for (let i = 0; i < 40; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+                particle.style.animationDelay = Math.random() * 6 + 's';
+                particle.style.animationDuration = (Math.random() * 4 + 4) + 's';
+                container.appendChild(particle);
+            }
+        }
+
+        // 初始化音乐选择器
+        function initMusicSelector() {
+            elements.musicSelector.innerHTML = '';
+            musicOptions.forEach((music, index) => {
+                const option = document.createElement('div');
+                option.className = 'music-option';
+                if (index === 0) {
+                    option.classList.add('active');
+                    freeDanceState.selectedMusic = music;
+                }
+                
+                option.innerHTML = `
+                    <div class="music-icon">${music.icon}</div>
+                    <div class="music-info">
+                        <div class="music-name">${music.name}</div>
+                        <div class="music-bpm">${music.bpm} BPM • ${music.genre}</div>
+                    </div>
+                `;
+                
+                option.addEventListener('click', () => selectMusic(music, option));
+                elements.musicSelector.appendChild(option);
+            });
+        }
+
+        // 初始化难度选择器
+        function initDifficultySelector() {
+            elements.difficultySelector.innerHTML = '';
+            difficultyOptions.forEach(difficulty => {
+                const option = document.createElement('div');
+                option.className = 'music-option';
+                option.style.borderColor = difficulty.color;
+                
+                if (difficulty.id === freeDanceState.selectedDifficulty) {
+                    option.classList.add('active');
+                }
+                
+                option.innerHTML = `
+                    <div class="music-icon" style="color: ${difficulty.color}">⭐</div>
+                    <div class="music-info">
+                        <div class="music-name">${difficulty.name}</div>
+                        <div class="music-bpm">×${difficulty.multiplier} 分数倍率</div>
+                    </div>
+                `;
+                
+                option.addEventListener('click', () => selectDifficulty(difficulty, option));
+                elements.difficultySelector.appendChild(option);
+            });
+        }
+
+        // 选择音乐
+        function selectMusic(music, element) {
+            freeDanceState.selectedMusic = music;
+            
+            // 生成节拍时间（模拟）
+            freeDanceState.beatTimes = [];
+            const beatInterval = 60 / music.bpm; // 秒
+            for (let i = 0; i < 200; i++) {
+                freeDanceState.beatTimes.push(i * beatInterval);
+            }
+            
+            document.querySelectorAll('.music-option').forEach(opt => opt.classList.remove('active'));
+            element.classList.add('active');
+            
+            console.log(`🎵 选择音乐: ${music.name} (${music.bpm} BPM)`);
+        }
+
+        // 选择难度
+        function selectDifficulty(difficulty, element) {
+            freeDanceState.selectedDifficulty = difficulty.id;
+            
+            document.querySelectorAll('#difficultySelector .music-option').forEach(opt => opt.classList.remove('active'));
+            element.classList.add('active');
+            
+            console.log(`⭐ 选择难度: ${difficulty.name} (×${difficulty.multiplier})`);
+        }
+
+        // 初始化WebSocket连接
+        function initWebSocket() {
+            try {
+                const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+                const wsUrl = `${protocol}//${window.location.host}/ws/ws`;
+                
+                freeDanceState.ws = new WebSocket(wsUrl);
+                
+                freeDanceState.ws.onopen = () => {
+                    console.log('✅ WebSocket连接成功');
+                    freeDanceState.wsConnected = true;
+                };
+                
+                freeDanceState.ws.onclose = () => {
+                    console.log('❌ WebSocket连接断开');
+                    freeDanceState.wsConnected = false;
+                    setTimeout(initWebSocket, 5000);
+                };
+                
+                freeDanceState.ws.onmessage = (event) => {
+                    try {
+                        const data = JSON.parse(event.data);
+                        handleWebSocketMessage(data);
+                    } catch (e) {
+                        console.error('WebSocket消息解析失败:', e);
+                    }
+                };
+            } catch (error) {
+                console.error('WebSocket初始化失败:', error);
+                setTimeout(initWebSocket, 5000);
+            }
+        }
+
+        // 处理WebSocket消息
+        function handleWebSocketMessage(data) {
+            const eventType = data.event || data.type;
+            
+            switch (eventType) {
+                case 'frame_result':
+                    handleFrameResult(data);
+                    break;
+                case 'score_update':
+                    handleScoreUpdate(data);
+                    break;
+                case 'game_started':
+                    freeDanceState.gameStarted = true;
+                    updateGameControls();
+                    break;
+                case 'game_stopped':
+                    freeDanceState.gameStarted = false;
+                    freeDanceState.gamePaused = false;
+                    updateGameControls();
+                    break;
+            }
+        }
+
+        // 处理帧结果
+        function handleFrameResult(data) {
+            if (data.type === 'webcam' && freeDanceState.gameStarted) {
+                // 分析动作并生成评分
+                analyzeMovement(data);
+            }
+        }
+
+        // 处理评分更新
+        function handleScoreUpdate(data) {
+            if (data.current_scores) {
+                updateFreeDanceScores(data.current_scores);
+            }
+        }
+
+        // 分析动作 - FreeDance特有逻辑
+        function analyzeMovement(frameData) {
+            if (!freeDanceState.gameStarted || freeDanceState.gamePaused) return;
+            
+            // 模拟动作分析和评分
+            const currentTime = Date.now();
+            
+            // 生成随机但合理的分数
+            const fluidity = Math.random() * 40 + 60; // 60-100
+            const rhythm = calculateRhythmScore(currentTime);
+            const creativity = Math.random() * 50 + 50; // 50-100
+            const activity = Math.random() * 30 + 70; // 70-100
+            
+            // 更新分数
+            freeDanceState.scores = {
+                fluidity: fluidity,
+                rhythm: rhythm,
+                creativity: creativity,
+                activity: activity,
+                total: (fluidity + rhythm + creativity + activity) / 4
+            };
+            
+            // 检查是否触发特效
+            checkForSpecialEffects();
+            
+            // 更新UI
+            updateScoreDisplay();
+            updateEnergyAndCombo();
+            addMoveToHistory();
+        }
+
+        // 计算节奏分数
+        function calculateRhythmScore(currentTime) {
+            if (!freeDanceState.beatTimes.length) return Math.random() * 40 + 30;
+            
+            const gameTime = (currentTime - freeDanceState.gameStartTime) / 1000;
+            const closestBeat = freeDanceState.beatTimes.find(beat => Math.abs(beat - gameTime) < 0.3);
+            
+            if (closestBeat) {
+                const timeDiff = Math.abs(closestBeat - gameTime);
+                return Math.max(0, 100 - timeDiff * 200); // 越接近节拍分数越高
+            }
+            
+            return Math.random() * 60 + 20; // 20-80 随机分
+        }
+
+        // 检查特效触发
+        function checkForSpecialEffects() {
+            const totalScore = freeDanceState.scores.total;
+            
+            // 完美动作特效
+            if (totalScore > 95) {
+                triggerPerfectEffect();
+                freeDanceState.combo++;
+            } else if (totalScore > 80) {
+                freeDanceState.combo++;
+            } else {
+                freeDanceState.combo = 0;
+            }
+            
+            // 连击特效
+            if (freeDanceState.combo > 0 && freeDanceState.combo % 5 === 0) {
+                triggerComboEffect();
+            }
+            
+            // 更新最大连击
+            freeDanceState.maxCombo = Math.max(freeDanceState.maxCombo, freeDanceState.combo);
+        }
+
+        // 触发完美特效
+        function triggerPerfectEffect() {
+            const effect = document.createElement('div');
+            effect.className = 'perfect-explosion';
+            effect.innerHTML = '🌟 PERFECT! 🌟';
+            elements.effectsContainer.appendChild(effect);
+            
+            setTimeout(() => {
+                if (effect.parentNode) {
+                    effect.parentNode.removeChild(effect);
+                }
+            }, 2000);
+        }
+
+        // 触发连击特效
+        function triggerComboEffect() {
+            const effect = document.createElement('div');
+            effect.className = 'combo-effect';
+            effect.innerHTML = `💖 ${freeDanceState.combo} COMBO! 💖`;
+            elements.effectsContainer.appendChild(effect);
+            
+            setTimeout(() => {
+                if (effect.parentNode) {
+                    effect.parentNode.removeChild(effect);
+                }
+            }, 1500);
+        }
+
+        // 更新分数显示
+        function updateScoreDisplay() {
+            const scores = freeDanceState.scores;
+            
+            elements.fluidityScore.textContent = Math.round(scores.fluidity);
+            elements.rhythmScore.textContent = Math.round(scores.rhythm);
+            elements.creativityScore.textContent = Math.round(scores.creativity);
+            elements.activityScore.textContent = Math.round(scores.activity);
+            
+            elements.fluidityBar.style.width = `${scores.fluidity}%`;
+            elements.rhythmBar.style.width = `${scores.rhythm}%`;
+            elements.creativityBar.style.width = `${scores.creativity}%`;
+            elements.activityBar.style.width = `${scores.activity}%`;
+            
+            // 更新总分
+            freeDanceState.totalScore += scores.total / 10; // 累加分数
+            elements.totalScore.textContent = Math.round(freeDanceState.totalScore);
+        }
+
+        // 更新能量和连击
+        function updateEnergyAndCombo() {
+            // 能量值基于总体表现
+            freeDanceState.energy = Math.min(100, freeDanceState.scores.total);
+            elements.energyValue.textContent = Math.round(freeDanceState.energy) + '%';
+            
+            // 更新能量圆环
+            const angle = (freeDanceState.energy / 100) * 360;
+            elements.energyCircle.style.background = `conic-gradient(var(--gradient-energy) ${angle}deg, var(--gray) ${angle}deg)`;
+            
+            // 更新连击显示
+            elements.comboNumber.textContent = freeDanceState.combo;
+        }
+
+        // 添加动作到历史
+        function addMoveToHistory() {
+            const moveNames = ['优雅转身', '温柔跳跃', '流畅摆臂', '甜美踏步', '创意动作', '能量绽放'];
+            const randomMove = moveNames[Math.floor(Math.random() * moveNames.length)];
+            const score = Math.round(freeDanceState.scores.total);
+            
+            const moveItem = document.createElement('div');
+            moveItem.className = 'move-item';
+            moveItem.innerHTML = `
+                <div class="move-icon">🌟</div>
+                <div class="move-name">${randomMove}</div>
+                <div class="move-score">${score}</div>
+            `;
+            
+            elements.moveHistory.insertBefore(moveItem, elements.moveHistory.firstChild);
+            
+            // 保持最多10个记录
+            while (elements.moveHistory.children.length > 10) {
+                elements.moveHistory.removeChild(elements.moveHistory.lastChild);
+            }
+        }
+
+        // 初始化摄像头
+        async function initCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        width: { ideal: 640 },
+                        height: { ideal: 480 },
+                        facingMode: 'user',
+                        frameRate: { ideal: 15 }
+                    }
+                });
+                
+                elements.userVideo.srcObject = stream;
+                freeDanceState.cameraReady = true;
+                
+                elements.userVideo.onloadedmetadata = () => {
+                    elements.userVideo.play().then(() => {
+                        elements.cameraPlaceholder.style.display = 'none';
+                        elements.userVideo.style.display = 'block';
+                        startVideoCapture();
+                    });
+                };
+                
+            } catch (error) {
+                console.error('摄像头初始化失败:', error);
+                elements.cameraPlaceholder.innerHTML = `
+                    <i class="fas fa-camera-slash"></i>
+                    <p>摄像头获取失败</p>
+                    <button onclick="initCamera()" class="control-button" style="margin-top: 1rem; padding: 0.5rem 1rem; font-size: 0.9rem;">
+                        <i class="fas fa-redo"></i> 重试
+                    </button>
+                `;
+            }
+        }
+
+        // 开始视频捕获
+        function startVideoCapture() {
+            if (!elements.userVideo || !freeDanceState.wsConnected) {
+                return;
+            }
+            
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            let lastCaptureTime = 0;
+            const captureInterval = 100; // 10FPS 用于FreeDance模式
+            
+            const captureFrame = () => {
+                if (!freeDanceState.cameraReady || !freeDanceState.wsConnected) {
+                    return;
+                }
+                
+                const now = Date.now();
+                if (now - lastCaptureTime < captureInterval) {
+                    requestAnimationFrame(captureFrame);
+                    return;
+                }
+                lastCaptureTime = now;
+                
+                const videoWidth = elements.userVideo.videoWidth || 640;
+                const videoHeight = elements.userVideo.videoHeight || 480;
+                
+                if (videoWidth === 0 || videoHeight === 0) {
+                    requestAnimationFrame(captureFrame);
+                    return;
+                }
+                
+                canvas.width = videoWidth;
+                canvas.height = videoHeight;
+                
+                try {
+                    ctx.drawImage(elements.userVideo, 0, 0, canvas.width, canvas.height);
+                    
+                    canvas.toBlob((blob) => {
+                        if (blob && freeDanceState.wsConnected) {
+                            const reader = new FileReader();
+                            reader.onload = () => {
+                                // 发送FreeDance特定的帧数据
+                                sendWebSocketMessage({
+                                    event: 'frame',
+                                    frame_type: 'freedance',
+                                    image: reader.result,
+                                    current_time: Date.now() / 1000,
+                                    music_bpm: freeDanceState.selectedMusic?.bpm || 120,
+                                    difficulty: freeDanceState.selectedDifficulty
+                                });
+                            };
+                            reader.readAsDataURL(blob);
+                        }
+                    }, 'image/jpeg', 0.6);
+                } catch (err) {
+                    console.error('帧捕获错误:', err);
+                }
+                
+                requestAnimationFrame(captureFrame);
+            };
+            
+            captureFrame();
+        }
+
+        // 发送WebSocket消息
+        function sendWebSocketMessage(message) {
+            if (freeDanceState.ws && freeDanceState.ws.readyState === WebSocket.OPEN) {
+                freeDanceState.ws.send(JSON.stringify(message));
+            }
+        }
+
+        // 初始化事件监听器
+        function initEventListeners() {
+            // 游戏控制
+            elements.startFreeDance.addEventListener('click', startFreeDanceGame);
+            elements.pauseFreeDance.addEventListener('click', pauseFreeDanceGame);
+            elements.resumeFreeDance.addEventListener('click', resumeFreeDanceGame);
+            elements.stopFreeDance.addEventListener('click', stopFreeDanceGame);
+            
+            // 返回按钮
+            elements.backToReference.addEventListener('click', () => {
+                if (freeDanceState.gameStarted) {
+                    if (confirm('当前游戏正在进行，确定要返回吗？')) {
+                        window.location.href = 'dancevibe.html';
+                    }
+                } else {
+                    window.location.href = 'dancevibe.html';
+                }
+            });
+        }
+
+        // 开始FreeDance游戏
+        function startFreeDanceGame() {
+            if (!freeDanceState.selectedMusic) {
+                alert('请选择音乐！');
+                return;
+            }
+            
+            if (!freeDanceState.cameraReady) {
+                alert('请等待摄像头就绪！');
+                return;
+            }
+            
+            // 重置游戏状态
+            freeDanceState.gameStarted = true;
+            freeDanceState.gameStartTime = Date.now();
+            freeDanceState.totalScore = 0;
+            freeDanceState.combo = 0;
+            freeDanceState.maxCombo = 0;
+            freeDanceState.energy = 0;
+            
+            // 开始挑战循环
+            startChallengeLoop();
+            
+            // 发送游戏开始消息
+            sendWebSocketMessage({
+                event: 'start_game',
+                mode: 'freedance',
+                music: freeDanceState.selectedMusic,
+                difficulty: freeDanceState.selectedDifficulty
+            });
+            
+            updateGameControls();
+            console.log('🌸 FreeDance游戏开始！');
+        }
+
+        // 暂停游戏
+        function pauseFreeDanceGame() {
+            freeDanceState.gamePaused = true;
+            clearTimeout(freeDanceState.challengeTimer);
+            updateGameControls();
+        }
+
+        // 恢复游戏
+        function resumeFreeDanceGame() {
+            freeDanceState.gamePaused = false;
+            startChallengeLoop();
+            updateGameControls();
+        }
+
+        // 停止游戏
+        function stopFreeDanceGame() {
+            freeDanceState.gameStarted = false;
+            freeDanceState.gamePaused = false;
+            clearTimeout(freeDanceState.challengeTimer);
+            
+            // 显示最终结果
+            showFreeDanceResult();
+            
+            sendWebSocketMessage({ event: 'stop_game' });
+            updateGameControls();
+        }
+
+        // 开始挑战循环
+        function startChallengeLoop() {
+            if (!freeDanceState.gameStarted || freeDanceState.gamePaused) return;
+            
+            // 随机选择挑战
+            const challenge = challengeTypes[Math.floor(Math.random() * challengeTypes.length)];
+            freeDanceState.currentChallenge = challenge;
+            
+            // 更新挑战显示
+            elements.challengeIcon.textContent = challenge.icon;
+            elements.challengeText.textContent = challenge.description;
+            
+            // 开始倒计时
+            let timeLeft = challenge.duration;
+            elements.challengeTimer.textContent = timeLeft;
+            
+            const countdown = setInterval(() => {
+                timeLeft--;
+                elements.challengeTimer.textContent = timeLeft;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(countdown);
+                    // 开始下一个挑战
+                    freeDanceState.challengeTimer = setTimeout(startChallengeLoop, 2000);
+                }
+            }, 1000);
+        }
+
+        // 显示FreeDance结果
+        function showFreeDanceResult() {
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                background: rgba(0, 0, 0, 0.5);
+                backdrop-filter: blur(10px);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 10000;
+                color: var(--black);
+                font-family: 'Poppins', sans-serif;
+            `;
+            
+            modal.innerHTML = `
+                <div style="background: white; padding: 3rem; border-radius: 25px; text-align: center; max-width: 500px; box-shadow: var(--shadow-soft);">
+                    <h2 style="font-size: 2.5rem; margin-bottom: 1rem; background: var(--gradient-main); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">🌸 舞蹈完成！</h2>
+                    <div style="font-size: 4rem; font-weight: 800; background: var(--gradient-score); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin: 1rem 0;">${Math.round(freeDanceState.totalScore)}</div>
+                    <div style="font-size: 1.2rem; margin-bottom: 1rem; color: var(--dark-gray);">总得分</div>
+                    <div style="margin: 2rem 0; color: var(--black);">
+                        <div>最高连击: ${freeDanceState.maxCombo}</div>
+                        <div>平均能量: ${Math.round(freeDanceState.energy)}%</div>
+                    </div>
+                    <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 2rem;">
+                        <button onclick="this.parentElement.parentElement.parentElement.remove(); startFreeDanceGame();" class="control-button">
+                            <i class="fas fa-redo"></i> 再来一次
+                        </button>
+                        <button onclick="this.parentElement.parentElement.parentElement.remove();" class="control-button">
+                            <i class="fas fa-home"></i> 返回
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+        }
+
+        // 更新游戏控制按钮
+        function updateGameControls() {
+            if (!freeDanceState.gameStarted) {
+                elements.startFreeDance.style.display = 'block';
+                elements.pauseFreeDance.style.display = 'none';
+                elements.resumeFreeDance.style.display = 'none';
+                elements.stopFreeDance.style.display = 'none';
+            } else {
+                elements.startFreeDance.style.display = 'none';
+                elements.stopFreeDance.style.display = 'block';
+                
+                if (freeDanceState.gamePaused) {
+                    elements.pauseFreeDance.style.display = 'none';
+                    elements.resumeFreeDance.style.display = 'block';
+                } else {
+                    elements.pauseFreeDance.style.display = 'block';
+                    elements.resumeFreeDance.style.display = 'none';
+                }
+            }
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', initFreeDanceApp);
+    </script>
+</body>
+</html>

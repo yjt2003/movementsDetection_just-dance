@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>手势舞检测应用</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .main-content {
+            display: flex;
+            flex: 1;
+            gap: 20px;
+            min-height: 0;
+        }
+
+        .video-section {
+            flex: 2;
+            position: relative;
+            background: rgba(0,0,0,0.3);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        #video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1);
+        }
+
+        #canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transform: scaleX(-1);
+        }
+
+        .control-panel {
+            flex: 1;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .control-section {
+            margin-bottom: 25px;
+        }
+
+        .control-section h3 {
+            margin-bottom: 15px;
+            color: #FFD700;
+            border-bottom: 2px solid rgba(255,215,0,0.3);
+            padding-bottom: 5px;
+        }
+
+        .button {
+            background: linear-gradient(45deg, #FF6B6B, #FF8E8E);
+            border: none;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255,107,107,0.3);
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255,107,107,0.4);
+        }
+
+        .button:active {
+            transform: translateY(0);
+        }
+
+        .button.active {
+            background: linear-gradient(45deg, #4ECDC4, #44A08D);
+        }
+
+        .stats {
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .stat-value {
+            font-weight: bold;
+            color: #FFD700;
+        }
+
+        .gesture-list {
+            max-height: 200px;
+            overflow-y: auto;
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .gesture-item {
+            padding: 8px;
+            margin: 5px 0;
+            background: rgba(255,255,255,0.1);
+            border-radius: 5px;
+            font-size: 12px;
+        }
+
+        .score-display {
+            text-align: center;
+            font-size: 3em;
+            font-weight: bold;
+            color: #FFD700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            margin: 20px 0;
+        }
+
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 10;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top: 4px solid #FFD700;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .dance-mode {
+            background: rgba(255,215,0,0.2);
+            border: 2px solid #FFD700;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #FFD700, #FFA500);
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🕺 AI手势舞检测器 💃</h1>
+            <p>集成MediaPipe全身姿势和精确手部检测</p>
+        </div>
+
+        <div class="main-content">
+            <div class="video-section">
+                <div class="video-container">
+                    <video id="video" autoplay muted playsinline></video>
+                    <canvas id="canvas"></canvas>
+                    <div id="loading" class="loading">
+                        <div class="spinner"></div>
+                        <p>正在初始化AI模型...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-panel">
+                <div class="control-section">
+                    <h3>🎮 控制面板</h3>
+                    <button id="startBtn" class="button">开始检测</button>
+                    <button id="stopBtn" class="button">停止检测</button>
+                    <button id="danceModeBtn" class="button">舞蹈模式</button>
+                </div>
+
+                <div class="control-section">
+                    <h3>📊 实时状态</h3>
+                    <div class="stats">
+                        <div class="stat-item">
+                            <span>检测状态:</span>
+                            <span id="detectionStatus" class="stat-value">未启动</span>
+                        </div>
+                        <div class="stat-item">
+                            <span>FPS:</span>
+                            <span id="fpsDisplay" class="stat-value">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span>姿势置信度:</span>
+                            <span id="poseConfidence" class="stat-value">0%</span>
+                        </div>
+                        <div class="stat-item">
+                            <span>手部检测:</span>
+                            <span id="handStatus" class="stat-value">无</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="danceSection" class="dance-mode" style="display: none;">
+                    <h3>🎭 舞蹈评分</h3>
+                    <div class="score-display" id="danceScore">0</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="scoreProgress"></div>
+                    </div>
+                    <p id="danceInstruction">准备开始你的手势舞表演！</p>
+                </div>
+
+                <div class="control-section">
+                    <h3>👋 检测到的手势</h3>
+                    <div id="gestureList" class="gesture-list">
+                        <div class="gesture-item">等待检测...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class DanceGestureApp {
+            constructor() {
+                this.video = document.getElementById('video');
+                this.canvas = document.getElementById('canvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.isDetecting = false;
+                this.isDanceMode = false;
+                this.danceScore = 0;
+                this.frameCount = 0;
+                this.lastTime = performance.now();
+                this.fps = 0;
+
+                // 手势识别数据
+                this.gestures = [];
+                this.currentGesture = null;
+                this.gestureStartTime = 0;
+
+                // 舞蹈动作序列
+                this.danceSequence = [
+                    { name: '双手举高', duration: 2000 },
+                    { name: '左右挥手', duration: 3000 },
+                    { name: '心形手势', duration: 2000 },
+                    { name: '旋转动作', duration: 4000 }
+                ];
+                this.currentDanceStep = 0;
+                this.danceStepStartTime = 0;
+
+                this.setupEventListeners();
+                this.initializeCamera();
+            }
+
+            setupEventListeners() {
+                document.getElementById('startBtn').addEventListener('click', () => this.startDetection());
+                document.getElementById('stopBtn').addEventListener('click', () => this.stopDetection());
+                document.getElementById('danceModeBtn').addEventListener('click', () => this.toggleDanceMode());
+            }
+
+            async initializeCamera() {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({
+                        video: { width: 1280, height: 720 }
+                    });
+                    this.video.srcObject = stream;
+
+                    this.video.addEventListener('loadedmetadata', () => {
+                        this.resizeCanvas();
+                        document.getElementById('loading').style.display = 'none';
+                    });
+                } catch (error) {
+                    console.error('摄像头访问失败:', error);
+                    alert('无法访问摄像头，请检查权限设置');
+                }
+            }
+
+            resizeCanvas() {
+                const rect = this.video.getBoundingClientRect();
+                this.canvas.width = rect.width;
+                this.canvas.height = rect.height;
+            }
+
+            startDetection() {
+                if (!this.isDetecting) {
+                    this.isDetecting = true;
+                    this.updateStatus('检测中', '#4ECDC4');
+                    this.detectLoop();
+                    document.getElementById('startBtn').classList.add('active');
+                }
+            }
+
+            stopDetection() {
+                this.isDetecting = false;
+                this.updateStatus('已停止', '#FF6B6B');
+                document.getElementById('startBtn').classList.remove('active');
+            }
+
+            toggleDanceMode() {
+                this.isDanceMode = !this.isDanceMode;
+                const danceSection = document.getElementById('danceSection');
+                const danceBtn = document.getElementById('danceModeBtn');
+
+                if (this.isDanceMode) {
+                    danceSection.style.display = 'block';
+                    danceBtn.classList.add('active');
+                    danceBtn.textContent = '退出舞蹈模式';
+                    this.startDanceSequence();
+                } else {
+                    danceSection.style.display = 'none';
+                    danceBtn.classList.remove('active');
+                    danceBtn.textContent = '舞蹈模式';
+                    this.danceScore = 0;
+                    this.updateDanceDisplay();
+                }
+            }
+
+            startDanceSequence() {
+                this.currentDanceStep = 0;
+                this.danceStepStartTime = Date.now();
+                this.danceScore = 0;
+                this.updateDanceInstruction();
+            }
+
+            updateDanceInstruction() {
+                const instruction = document.getElementById('danceInstruction');
+                if (this.currentDanceStep < this.danceSequence.length) {
+                    const step = this.danceSequence[this.currentDanceStep];
+                    instruction.textContent = `当前动作: ${step.name} (${step.duration/1000}秒)`;
+                } else {
+                    instruction.textContent = '舞蹈完成！精彩表演！';
+                }
+            }
+
+            detectLoop() {
+                if (!this.isDetecting) return;
+
+                // 模拟检测过程
+                this.simulateDetection();
+                this.updateFPS();
+
+                if (this.isDanceMode) {
+                    this.updateDanceProgress();
+                }
+
+                requestAnimationFrame(() => this.detectLoop());
+            }
+
+            simulateDetection() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+                // 模拟姿势检测
+                this.drawSkeletonMock();
+                this.drawHandLandmarksMock();
+
+                // 模拟手势识别
+                this.simulateGestureRecognition();
+
+                // 更新置信度
+                const confidence = Math.floor(Math.random() * 30) + 70;
+                document.getElementById('poseConfidence').textContent = `${confidence}%`;
+
+                // 更新手部状态
+                const handStatus = ['双手检测到', '仅左手', '仅右手', '无手部'][Math.floor(Math.random() * 4)];
+                document.getElementById('handStatus').textContent = handStatus;
+            }
+
+            drawSkeletonMock() {
+                const centerX = this.canvas.width / 2;
+                const centerY = this.canvas.height / 2;
+
+                // 模拟身体骨架
+                this.ctx.strokeStyle = '#00FF00';
+                this.ctx.lineWidth = 3;
+                this.ctx.fillStyle = '#FFD700';
+
+                // 头部
+                this.ctx.beginPath();
+                this.ctx.arc(centerX, centerY - 120, 20, 0, 2 * Math.PI);
+                this.ctx.fill();
+
+                // 身体
+                this.ctx.beginPath();
+                this.ctx.moveTo(centerX, centerY - 100);
+                this.ctx.lineTo(centerX, centerY + 50);
+                this.ctx.stroke();
+
+                // 手臂 (添加动画效果)
+                const armAngle = Math.sin(Date.now() * 0.003) * 0.5;
+                this.ctx.beginPath();
+                this.ctx.moveTo(centerX, centerY - 80);
+                this.ctx.lineTo(centerX - 60 + armAngle * 20, centerY - 40 + armAngle * 10);
+                this.ctx.moveTo(centerX, centerY - 80);
+                this.ctx.lineTo(centerX + 60 - armAngle * 20, centerY - 40 - armAngle * 10);
+                this.ctx.stroke();
+
+                // 腿部
+                this.ctx.beginPath();
+                this.ctx.moveTo(centerX, centerY + 50);
+                this.ctx.lineTo(centerX - 30, centerY + 120);
+                this.ctx.moveTo(centerX, centerY + 50);
+                this.ctx.lineTo(centerX + 30, centerY + 120);
+                this.ctx.stroke();
+            }
+
+            drawHandLandmarksMock() {
+                // 模拟手部关键点
+                this.ctx.fillStyle = '#FF69B4';
+
+                // 左手
+                const leftHandX = this.canvas.width / 2 - 80;
+                const leftHandY = this.canvas.height / 2 - 30;
+                this.drawHandPoints(leftHandX, leftHandY);
+
+                // 右手
+                const rightHandX = this.canvas.width / 2 + 80;
+                const rightHandY = this.canvas.height / 2 - 30;
+                this.drawHandPoints(rightHandX, rightHandY);
+            }
+
+            drawHandPoints(x, y) {
+                // 绘制21个手部关键点的简化版本
+                for (let i = 0; i < 21; i++) {
+                    const angle = (i / 21) * 2 * Math.PI;
+                    const radius = 15 + Math.sin(i * 0.5) * 5;
+                    const pointX = x + Math.cos(angle) * radius;
+                    const pointY = y + Math.sin(angle) * radius;
+
+                    this.ctx.beginPath();
+                    this.ctx.arc(pointX, pointY, 2, 0, 2 * Math.PI);
+                    this.ctx.fill();
+                }
+            }
+
+            simulateGestureRecognition() {
+                const gestures = ['👋 挥手', '✌️ 胜利手势', '👍 点赞', '🤟 摇滚手势', '👌 OK手势', '🤝 握手姿势', '💖 心形手势'];
+
+                if (Math.random() < 0.1) { // 10%概率检测到新手势
+                    const newGesture = gestures[Math.floor(Math.random() * gestures.length)];
+                    this.addGesture(newGesture);
+                }
+            }
+
+            addGesture(gesture) {
+                const timestamp = new Date().toLocaleTimeString();
+                this.gestures.unshift({ gesture, timestamp });
+
+                // 保持最近20个手势
+                if (this.gestures.length > 20) {
+                    this.gestures.pop();
+                }
+
+                this.updateGestureList();
+
+                // 舞蹈模式评分
+                if (this.isDanceMode) {
+                    this.updateDanceScore(gesture);
+                }
+            }
+
+            updateGestureList() {
+                const gestureList = document.getElementById('gestureList');
+                if (this.gestures.length === 0) {
+                    gestureList.innerHTML = '<div class="gesture-item">等待检测...</div>';
+                } else {
+                    gestureList.innerHTML = this.gestures.map(g =>
+                        `<div class="gesture-item">${g.gesture} - ${g.timestamp}</div>`
+                    ).join('');
+                }
+            }
+
+            updateDanceScore(gesture) {
+                const currentStep = this.danceSequence[this.currentDanceStep];
+                if (!currentStep) return;
+
+                // 简单的评分逻辑
+                let scoreIncrease = 0;
+                if (currentStep.name.includes('挥手') && gesture.includes('挥手')) {
+                    scoreIncrease = 10;
+                } else if (currentStep.name.includes('心形') && gesture.includes('心形')) {
+                    scoreIncrease = 15;
+                } else if (gesture.includes('胜利') || gesture.includes('点赞')) {
+                    scoreIncrease = 5;
+                }
+
+                this.danceScore += scoreIncrease;
+                this.updateDanceDisplay();
+            }
+
+            updateDanceProgress() {
+                const now = Date.now();
+                const currentStep = this.danceSequence[this.currentDanceStep];
+
+                if (currentStep && now - this.danceStepStartTime > currentStep.duration) {
+                    this.currentDanceStep++;
+                    this.danceStepStartTime = now;
+                    this.updateDanceInstruction();
+
+                    if (this.currentDanceStep >= this.danceSequence.length) {
+                        // 舞蹈完成
+                        this.danceScore += 50; // 完成奖励
+                        this.updateDanceDisplay();
+                    }
+                }
+            }
+
+            updateDanceDisplay() {
+                document.getElementById('danceScore').textContent = this.danceScore;
+                const progress = Math.min((this.danceScore / 200) * 100, 100);
+                document.getElementById('scoreProgress').style.width = `${progress}%`;
+            }
+
+            updateFPS() {
+                this.frameCount++;
+                const now = performance.now();
+                if (now - this.lastTime >= 1000) {
+                    this.fps = Math.round((this.frameCount * 1000) / (now - this.lastTime));
+                    document.getElementById('fpsDisplay').textContent = this.fps;
+                    this.frameCount = 0;
+                    this.lastTime = now;
+                }
+            }
+
+            updateStatus(status, color) {
+                const statusElement = document.getElementById('detectionStatus');
+                statusElement.textContent = status;
+                statusElement.style.color = color;
+            }
+        }
+
+        // 启动应用
+        window.addEventListener('load', () => {
+            new DanceGestureApp();
+        });
+    </script>
+</body>
+</html>
